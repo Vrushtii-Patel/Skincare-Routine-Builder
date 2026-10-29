@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 2,
+  "semantics": {
+    "matching": "a and b are each an ingredient id OR a tag from ingredients.json. Matching is symmetric (a/b order never matters). When a === b (a tag) the rule fires for two DISTINCT ingredients that both carry that tag. A pair is evaluated once per pair of ingredient ids.",
+    "specificity": "If several rules match the same ingredient pair, only the most specific applies: id+id beats id+tag beats tag+tag. Ties are broken by higher severity, then lower rule id.",
+    "absenceOfRule": "No rule means 'no default warning'. It is NOT a statement that a combination is safe.",
+    "kind": {
+      "irritation": "Cumulative dryness/irritation risk. Not a chemical incompatibility.",
+      "efficacy-timing": "Possible reduction in an ingredient's effect when applied together; separating by time of day is the reasonable fix.",
+      "duplicate-active": "Two ingredients doing a similar job; redundant rather than dangerous."
+    },
+    "severity": {
+      "info": "Shown only in a details view. Never a banner.",
+      "notice": "Subtle inline note on the shelf and week view.",
+      "caution": "Visible banner on the affected screen."
+    },
+    "enforcement": {
+      "none": "Never affects scheduling.",
+      "soft": "The scheduler tries to resolve it using resolutionOrder and applies a penalty weight (frequencies.json) when it cannot. It must still emit the warning if unresolved. It may NEVER drop a product or change its frequency to satisfy a soft rule.",
+      "hard": "RESERVED. The scheduler must never violate it. No rule in this dataset is hard because no pairing here is established as unsafe. Do not promote a rule to hard without a new authoritative source."
+    },
+    "resolutionOrder": "Ordered tactics. time-of-day = put the two on different routines (AM vs PM) if both products allow it. night = put them on different nights.",
+    "excludeWhen": {
+      "combination-product": "Either side is a single commercial product formulated with both ingredients (do not warn about its own formula).",
+      "clinician-directed-together": "The user marked the products as directed together by a prescriber. Suppress the warning; never override the prescriber."
+    },
+    "evidence": {
+      "established": "Authoritative source states it directly.",
+      "partial": "Authoritative sources support part of it; the rest is clinician commentary.",
+      "limited": "Only secondary or general-caution sources.",
+      "insufficient": "No source located. Rule is a conservative planning preference, not a medical claim."
+    }
+  },
+  "rules": [
+    {
+      "id": "c01",
+      "a": "retinol",
+      "b": "benzoyl-peroxide",
+      "kind": "efficacy-timing",
+      "severity": "caution",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "time-of-day",
+        "night"
+      ],
+      "excludeWhen": [
+        "combination-product",
+        "clinician-directed-together"
+      ],
+      "evidence": "partial",
+      "title": "Retinol and benzoyl peroxide",
+      "explanation": "Some secondary dermatology commentary suggests benzoyl peroxide may reduce the effectiveness of retinol, but evidence for separate OTC retinol products is limited. Using both active products may also increase irritation. This is a cautious timing preference, not a universal incompatibility.",
+      "tip": "If the product labels and your clinician's instructions allow it, consider benzoyl peroxide in the morning and retinol at night, or alternate nights. Do not override prescribed directions.",
+      "sourceIds": [
+        "s-instyle-bpo-retinol",
+        "s-vcu-acne-handout",
+        "s-dermnet-acne-topical"
+      ]
+    },
+    {
+      "id": "c02",
+      "a": "tretinoin",
+      "b": "benzoyl-peroxide",
+      "kind": "efficacy-timing",
+      "severity": "caution",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "time-of-day",
+        "night"
+      ],
+      "excludeWhen": [
+        "combination-product",
+        "clinician-directed-together"
+      ],
+      "evidence": "partial",
+      "title": "Tretinoin and benzoyl peroxide",
+      "explanation": "A university health handout recommends applying separate benzoyl peroxide and topical retinoid products at different times. However, AAD guidance also lists prescribed retinoid–benzoyl peroxide combination medicines, including tretinoin-containing Twyneo. This is not a universal incompatibility; formulation and prescriber instructions matter.",
+      "tip": "For separate products, follow the product label and prescriber's directions; if they do not specify timing, ask a pharmacist or clinician whether morning benzoyl peroxide and bedtime tretinoin are appropriate.",
+      "sourceIds": [
+        "s-vcu-acne-handout",
+        "s-aad-acne"
+      ]
+    },
+    {
+      "id": "c03",
+      "a": "adapalene",
+      "b": "benzoyl-peroxide",
+      "kind": "irritation",
+      "severity": "info",
+      "enforcement": "none",
+      "resolutionOrder": [],
+      "excludeWhen": [
+        "combination-product",
+        "clinician-directed-together"
+      ],
+      "evidence": "partial",
+      "title": "Adapalene and benzoyl peroxide",
+      "explanation": "This pair is a recognised acne treatment and is sold as a prescription combination. Using them together can still dry skin, so watch for tightness or peeling.",
+      "tip": "Introduce gradually and follow the product directions.",
+      "sourceIds": [
+        "s-aad-acne",
+        "s-aafp-aad-acne-guideline",
+        "s-pubmed-retinoid-bpo-2009",
+        "s-dermnet-acne-topical"
+      ]
+    },
+    {
+      "id": "c04",
+      "a": "retinoid",
+      "b": "aha",
+      "kind": "irritation",
+      "severity": "notice",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "night",
+        "time-of-day"
+      ],
+      "excludeWhen": [
+        "clinician-directed-together"
+      ],
+      "evidence": "limited",
+      "title": "Retinoid and AHA",
+      "explanation": "Both can dry and irritate skin. This is an irritation precaution, not a chemical incompatibility.",
+      "tip": "Use them on different nights, especially if your skin is sensitive.",
+      "sourceIds": [
+        "s-today-ingredients",
+        "s-aad-retinoid-retinol"
+      ]
+    },
+    {
+      "id": "c05",
+      "a": "retinoid",
+      "b": "bha",
+      "kind": "irritation",
+      "severity": "notice",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "night",
+        "time-of-day"
+      ],
+      "excludeWhen": [
+        "clinician-directed-together"
+      ],
+      "evidence": "limited",
+      "title": "Retinoid and salicylic acid",
+      "explanation": "Both can dry skin. Some clinical handouts suggest avoiding extra salicylic acid products while using a retinoid for acne.",
+      "tip": "Alternate nights, or ask your dermatologist if you are using a prescribed retinoid.",
+      "sourceIds": [
+        "s-ro-retinoid-acne",
+        "s-today-ingredients"
+      ]
+    },
+    {
+      "id": "c06",
+      "a": "retinoid",
+      "b": "retinoid",
+      "kind": "duplicate-active",
+      "severity": "notice",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "night"
+      ],
+      "excludeWhen": [
+        "clinician-directed-together"
+      ],
+      "evidence": "insufficient",
+      "title": "More than one retinoid",
+      "explanation": "Two retinoid products usually do the same job, so using both adds irritation risk without an obvious extra benefit. No authoritative source on this specific point was located; this is a conservative planning note.",
+      "tip": "Consider using one at a time, or check with your clinician if both were prescribed.",
+      "sourceIds": []
+    },
+    {
+      "id": "c07",
+      "a": "aha",
+      "b": "bha",
+      "kind": "irritation",
+      "severity": "notice",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "night"
+      ],
+      "excludeWhen": [],
+      "evidence": "insufficient",
+      "title": "AHA and BHA",
+      "explanation": "Stacking exfoliating acids can over-exfoliate for some people. No authoritative source on this exact pairing was located; this is a conservative planning preference.",
+      "tip": "Alternate nights if your skin feels tight, stings or peels.",
+      "sourceIds": []
+    },
+    {
+      "id": "c08",
+      "a": "aha",
+      "b": "aha",
+      "kind": "duplicate-active",
+      "severity": "notice",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "night"
+      ],
+      "excludeWhen": [
+        "combination-product"
+      ],
+      "evidence": "insufficient",
+      "title": "More than one AHA",
+      "explanation": "Two AHA products overlap in what they do. No authoritative source on this point was located; this is a conservative planning note.",
+      "tip": "You may only need one. Check each product's directions.",
+      "sourceIds": []
+    },
+    {
+      "id": "c09",
+      "a": "benzoyl-peroxide",
+      "b": "exfoliant",
+      "kind": "irritation",
+      "severity": "notice",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "night",
+        "time-of-day"
+      ],
+      "excludeWhen": [
+        "combination-product",
+        "clinician-directed-together"
+      ],
+      "evidence": "limited",
+      "title": "Benzoyl peroxide and exfoliating acid",
+      "explanation": "Combining acne treatments can have a cumulative irritant effect.",
+      "tip": "Use on different nights if skin feels dry or tight.",
+      "sourceIds": [
+        "s-dermnet-acne-topical"
+      ]
+    },
+    {
+      "id": "c10",
+      "a": "sulfur",
+      "b": "retinoid",
+      "kind": "irritation",
+      "severity": "notice",
+      "enforcement": "soft",
+      "resolutionOrder": [
+        "night",
+        "time-of-day"
+      ],
+      "excludeWhen": [
+        "clinician-directed-together"
+      ],
+      "evidence": "limited",
+      "title": "Sulfur and retinoid",
+      "explanation": "Some acne guidance says to avoid other acne treatments containing sulfur while using a retinoid because of added dryness.",
+      "tip": "Keep them apart and ask a pharmacist or dermatologist if unsure.",
+      "sourceIds": [
+        "s-ro-retinoid-acne"
+      ]
+    }
+  ],
+  "reviewedNoRule": [
+    {
+      "a": "niacinamide",
+      "b": "vitamin-c",
+      "decision": "no default warning",
+      "reason": "Quoted dermatologists describe the avoid-together advice as a myth. Evidence is secondary, so this is recorded as no warning rather than as proven safe.",
+      "sourceIds": [
+        "s-cosmo-niacinamide-vitc",
+        "s-healthline-niacinamide-vitc"
+      ]
+    },
+    {
+      "a": "vitamin-c",
+      "b": "retinoid",
+      "decision": "no warning; handled by preferredTime",
+      "reason": "The only support found is one clinician's pH claim in lay media, not a reliable source. Vitamin C prefers AM and retinoids prefer PM, which separates them by default.",
+      "sourceIds": [
+        "s-today-ingredients"
+      ]
+    },
+    {
+      "a": "vitamin-c",
+      "b": "aha",
+      "decision": "no warning; handled by preferredTime",
+      "reason": "No source located. AM/PM preferences separate them by default; general irritation guidance still applies to sensitive skin.",
+      "sourceIds": []
+    },
+    {
+      "a": "vitamin-c",
+      "b": "benzoyl-peroxide",
+      "decision": "no warning",
+      "reason": "The earlier tip (benzoyl peroxide reduces vitamin C) could not be supported from any source located. Removed rather than kept as an unsupported claim.",
+      "sourceIds": []
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 2,
+  "note": "Evidence-access audit updated 2026-10-29. Full AAD page content was available for the acne treatment, pregnancy acne treatment, retinoid/retinol, patch-testing, and sunscreen guidance pages during this audit. Other sources may still be represented only by search excerpts or abstracts; check each source before relying on a specific claim. Secondary sources are context only and should not be sole support for a safety restriction.",
+  "tiers": {
+    "authoritative": "Professional society or guideline summary",
+    "institutional": "University, hospital system, or clinical education site",
+    "secondary": "Journalism or commercial health content quoting clinicians; context only, never sole support for a safety rule"
+  },
+  "sources": [
+    {
+      "id": "s-aad-acne",
+      "title": "Acne: Diagnosis and treatment",
+      "organization": "American Academy of Dermatology",
+      "url": "https://www.aad.org/public/diseases/acne/derm-treat/treat/",
+      "tier": "authoritative",
+      "supports": "AAD says treatment plans may combine topical therapies and lists prescribed retinoid + benzoyl peroxide combinations including Epiduo, Epiduo Forte and Twyneo; it advises following dermatologist instructions."
+    },
+    {
+      "id": "s-aafp-aad-acne-guideline",
+      "title": "Acne Vulgaris: Treatment Guidelines from the AAD",
+      "organization": "American Family Physician (summarising AAD guidelines)",
+      "url": "https://aafp.org/afp/2017/0601/p740.html",
+      "tier": "authoritative",
+      "supports": "Benzoyl peroxide plus a topical retinoid is a first-line combination for acne, so the pair is not inherently contraindicated."
+    },
+    {
+      "id": "s-aad-retinoid-retinol",
+      "title": "Retinoid or retinol?",
+      "organization": "American Academy of Dermatology",
+      "url": "https://www.aad.org/public/everyday-care/skin-care-secrets/anti-aging/retinoid-retinol/",
+      "tier": "authoritative",
+      "supports": "Retinol is an OTC retinoid; the page advises using the lowest-intensity formula and says retinoids should not be used during pregnancy. It recommends dermatologist advice and sun protection."
+    },
+    {
+      "id": "s-aad-sunscreen-faq",
+      "title": "Sunscreen FAQs",
+      "organization": "American Academy of Dermatology",
+      "url": "https://www.aad.org/media/stats/prevention-and-care/sunscreen-faqs",
+      "tier": "authoritative",
+      "supports": "Use broad-spectrum, SPF 30 or higher, water-resistant sunscreen; reapply approximately every two hours when outdoors and after swimming or sweating; no sunscreen is waterproof."
+    },
+    {
+      "id": "s-aad-patch-test",
+      "title": "How to test skin care products",
+      "organization": "American Academy of Dermatology (press release via Newswise)",
+      "url": "https://www.aad.org/public/everyday-care/skin-care-secrets/prevent-skin-problems/test-skin-care-products/",
+      "tier": "authoritative",
+      "supports": "Apply a product to a small test spot twice daily for 7–10 days, following normal use directions; stop if a reaction occurs. This does not guarantee facial tolerance."
+    },
+    {
+      "id": "s-dermnet-acne-topical",
+      "title": "Topical therapy for acne",
+      "organization": "DermNet NZ",
+      "url": "https://dermnetnz.org/cme/follicular/topical-therapy-for-acne",
+      "tier": "institutional",
+      "supports": "Combining acne agents (for example with benzoyl peroxide or a topical retinoid) may result in a cumulative irritant effect."
+    },
+    {
+      "id": "s-vcu-acne-handout",
+      "title": "Acne handout (University Student Health Services)",
+      "organization": "Virginia Commonwealth University",
+      "url": "https://health.students.vcu.edu/media/student-affairs-sites/ushs/docs/ACNE.pdf",
+      "tier": "institutional",
+      "supports": "If advised to use both benzoyl peroxide and a topical retinoid, use benzoyl peroxide in the morning and the retinoid at bedtime; benzoyl peroxide increases oxidation of the retinoid medication."
+    },
+    {
+      "id": "s-pubmed-retinoid-bpo-2009",
+      "title": "Case-based experience with simultaneous use of a fixed topical antibiotic/benzoyl peroxide combination and a topical retinoid",
+      "organization": "J Drugs Dermatol 2009;8(12):1127-31 (PubMed 20027941)",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/20027941/",
+      "tier": "institutional",
+      "supports": "Abstract discusses simultaneous use of newer-generation retinoids and benzoyl peroxide products without concern of retinoid degradation. Only the abstract excerpt was seen."
+    },
+    {
+      "id": "s-upmc-retinol-pregnancy",
+      "title": "Is retinol safe during pregnancy?",
+      "organization": "UPMC HealthBeat (cites AAD and ACOG)",
+      "url": "https://share.upmc.com/2023/03/is-retinol-safe-during-pregnancy/",
+      "tier": "institutional",
+      "supports": "Safest approach is to avoid topical retinoids during pregnancy and breastfeeding; OTC retinol is lower in active vitamin A than prescription retinoids but evidence is limited; oral retinoids must never be used in pregnancy."
+    },
+    {
+      "id": "s-ro-retinoid-acne",
+      "title": "Acne and retinoid guidance",
+      "organization": "Ro (telehealth content citing AAD and Zaenglein 2016)",
+      "url": "https://ro.co/dermatology/how-to-get-rid-of-whiteheads",
+      "tier": "secondary",
+      "supports": "Retinoids cause dryness, peeling, redness; reduce frequency to limit effects; avoid other topical acne treatments containing sulfur, resorcinol or salicylic acid while using retinoids; many prescribers do not recommend retinoids in pregnancy."
+    },
+    {
+      "id": "s-cosmo-niacinamide-vitc",
+      "title": "Good News: It's Safe AND Effective to Use Niacinamide and Vitamin C Together",
+      "organization": "Cosmopolitan (quotes board-certified dermatologists)",
+      "url": "https://www.aol.com/good-news-safe-effective-niacinamide-220400650.html",
+      "tier": "secondary",
+      "supports": "Dermatologists quoted say the idea that vitamin C and niacinamide do not mix is a myth."
+    },
+    {
+      "id": "s-healthline-niacinamide-vitc",
+      "title": "Niacinamide and vitamin C",
+      "organization": "Healthline (dermatologist quoted)",
+      "url": "https://www.healthline.com/health/beauty-skincare/niacinamide-and-vitamin-c",
+      "tier": "secondary",
+      "supports": "Products containing vitamin C can be used with products containing niacinamide; older avoid-together guidance is described as outdated."
+    },
+    {
+      "id": "s-instyle-bpo-retinol",
+      "title": "The Right Way to Use Benzoyl Peroxide and Retinol Together",
+      "organization": "InStyle (quotes dermatologists)",
+      "url": "https://www.aol.com/benzoyl-peroxide-retinol-pros-answer-191552943.html",
+      "tier": "secondary",
+      "supports": "Quoted dermatologists say benzoyl peroxide can oxidise retinol and reduce its effectiveness, mixing can irritate, and both can be used if the approach is intentional."
+    },
+    {
+      "id": "s-today-ingredients",
+      "title": "Ingredients you should not use together",
+      "organization": "TODAY (quotes a dermatologist)",
+      "url": "https://www.today.com/today/amp/tdna224491",
+      "tier": "secondary",
+      "supports": "One dermatologist advises caution stacking retinol with AHAs/BHAs (dryness). The same article's pH claim about vitamin C and retinol is a single unreferenced assertion and is NOT relied on."
+    },
+    {
+      "id": "s-aad-pregnancy",
+      "title": "Is any acne treatment safe to use during pregnancy?",
+      "organization": "American Academy of Dermatology",
+      "url": "https://www.aad.org/public/diseases/acne/derm-treat/pregnancy",
+      "tier": "authoritative",
+      "supports": "AAD says tazarotene should not be used during pregnancy and most experts recommend stopping adapalene and tretinoin; it advises consultation with an obstetrician or dermatologist before acne treatment during pregnancy."
+    }
+  ]
+}

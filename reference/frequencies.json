@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 2,
+  "evidenceNote": "Every number in this file is a conservative PLANNING DEFAULT for a routine organiser. None is a clinically validated frequency, and no authoritative source located gives a specific nights-per-week figure for OTC products. Product directions and prescriber instructions always override these defaults.",
+  "defaultsApplyTo": "leave-on",
+  "rinseOffHandling": "Rinse-off products (cleansers, washes) do not use the leave-on caps. They use the product's own directions; if none are entered they fall back to the leave-on defaults and the UI says so. Insufficient evidence located to set separate rinse-off numbers.",
+  "scheduling": {
+    "weekStartsOn": "monday",
+    "restNightsMin": 2,
+    "maxScheduledActivesPerNight": 2,
+    "noConsecutiveNightsForTags": ["retinoid"],
+    "penaltyWeights": {"notice": 1, "caution": 3, "consecutiveRetinoid": 3, "restNightShortfall": 2, "overMaxActives": 2},
+    "allSchedulingPreferencesAre": "soft"
+  },
+  "ingredients": {
+    "retinol":          {"mode": "scheduled", "time": "PM",  "normalNights": 3, "sensitiveNights": 2, "maxUserNights": 7, "basis": "planning-default"},
+    "adapalene":        {"mode": "scheduled", "time": "PM",  "normalNights": 3, "sensitiveNights": 2, "maxUserNights": 7, "basis": "planning-default"},
+    "glycolic-acid":    {"mode": "scheduled", "time": "PM",  "normalNights": 2, "sensitiveNights": 1, "maxUserNights": 4, "basis": "planning-default"},
+    "lactic-acid":      {"mode": "scheduled", "time": "PM",  "normalNights": 3, "sensitiveNights": 2, "maxUserNights": 5, "basis": "planning-default"},
+    "mandelic-acid":    {"mode": "scheduled", "time": "PM",  "normalNights": 3, "sensitiveNights": 2, "maxUserNights": 5, "basis": "planning-default"},
+    "salicylic-acid":   {"mode": "scheduled", "time": "PM",  "normalNights": 3, "sensitiveNights": 2, "maxUserNights": 5, "basis": "planning-default"},
+    "benzoyl-peroxide": {"mode": "scheduled", "time": "any", "normalNights": 4, "sensitiveNights": 2, "maxUserNights": 7, "basis": "planning-default"},
+    "sulfur":           {"mode": "scheduled", "time": "any", "normalNights": 3, "sensitiveNights": 2, "maxUserNights": 5, "basis": "planning-default"},
+    "tretinoin":        {"mode": "user-directed", "time": "PM", "requiresDirections": true, "basis": "clinician-directed"},
+    "tazarotene":       {"mode": "user-directed", "time": "PM", "requiresDirections": true, "basis": "clinician-directed"}
+  },
+  "notes": {
+    "removedFromV1": "vitamin-c (7 / 4) was removed: it is every-routine in ingredients.json, formulations vary, and no source supports the numbers.",
+    "sensitiveSetting": "sensitiveNights applies when profile.sensitive is true. It is a user-chosen preference, not a diagnosis.",
+    "multiActiveProducts": "A product with several scheduled actives uses the LOWEST effective nights among them, so it is never placed more often than its most restrictive active.",
+    "overrides": "product.directions.nightsPerWeek above maxUserNights is only accepted when product.directions.source is 'clinician'."
+  }
+}

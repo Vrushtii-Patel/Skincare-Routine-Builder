@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-rose: #C496A1;
+    --color-sage: #919D85;
+    --color-lavender: #8E88A3;
+    --color-cream: #EBE1C6;
+    --color-ivory: #FAF7F2;
+    --color-card: #FDFBF7;
+    --color-cocoa: #28221E;
+    --color-cocoa-muted: #5C524C;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-cocoa);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: 'Playfair Display', Georgia, Cambria, serif;
+    letter-spacing: -0.015em;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-rose-500 text-white font-medium shadow-sm hover:bg-rose-600 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 focus:ring-offset-ivory disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-sage-100 text-sage-900 border border-sage-300 font-medium hover:bg-sage-200 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sage-400 focus:ring-offset-2 focus:ring-offset-ivory disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-cocoa-200 text-cocoa-800 bg-white/70 hover:bg-white active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-400;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-full text-cocoa-600 hover:text-cocoa-900 hover:bg-cream-100 transition-colors duration-150;
+  }
+
+  .card-editorial {
+    @apply bg-card rounded-3xl border border-cream-200/80 shadow-soft transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:shadow-soft-lg hover:border-rose-200/90 transition-all duration-300;
+  }
+
+  .badge-sage {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sage-100 text-sage-800 border border-sage-200;
+  }
+
+  .badge-rose {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200;
+  }
+
+  .badge-lavender {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-lavender-100 text-lavender-800 border border-lavender-200;
+  }
+
+  .badge-cream {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cream-100 text-cream-900 border border-cream-300;
+  }
+}
+

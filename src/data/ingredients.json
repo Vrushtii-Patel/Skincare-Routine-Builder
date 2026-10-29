@@ -1,0 +1,475 @@
+{
+  "schemaVersion": 2,
+  "tags": {
+    "retinoid": "Vitamin A derivatives that act on retinoid receptors (OTC retinol and adapalene; prescription tretinoin and tazarotene).",
+    "retinol-alternative": "Marketed as a retinol alternative; NOT a retinoid and not assumed equivalent.",
+    "aha": "Alpha hydroxy acids (chemical exfoliants).",
+    "bha": "Beta hydroxy acid (salicylic acid).",
+    "exfoliant": "Any chemical exfoliating acid (AHA or BHA).",
+    "acne-active": "Ingredient commonly used in acne treatment.",
+    "antibacterial": "Reduces acne-associated bacteria.",
+    "antioxidant": "Antioxidant ingredient.",
+    "brightener": "Marketed for uneven tone or pigmentation.",
+    "hydrator": "Moisturising or water-binding ingredient.",
+    "humectant": "Draws water into skin.",
+    "soothing": "Marketed to calm skin.",
+    "barrier": "Marketed to support the skin barrier.",
+    "spf": "Sun-protection filters."
+  },
+  "fieldDefinitions": {
+    "irritationPotential": "none|low|moderate|high. APPROXIMATE ingredient-level hint used only to break ties when ranking placement. It never gates safety decisions and never replaces product directions, because irritation depends on concentration, formulation and the individual.",
+    "availability": "otc|rx|both. Where 'rx' or 'both', the product may carry clinician directions that override every default in this dataset.",
+    "schedulingMode": "scheduled = scheduler assigns specific nights from frequencies.json. every-routine = appears in its routine slot by default but is NOT required daily; a product's own directions may reduce frequency and the scheduler enforces no minimum. user-directed = never auto-assigned; needs user- or clinician-entered directions.",
+    "preferredTime": "AM|PM|any. A soft placement preference, not a rule.",
+    "pregnancyAdvisory": "true = show the retinoid pregnancy/breastfeeding consult notice. false means 'no advisory shipped', NOT 'known safe'."
+  },
+  "ingredients": [
+    {
+      "id": "retinol",
+      "name": "Retinol",
+      "category": "retinoid",
+      "tags": [
+        "retinoid"
+      ],
+      "irritationPotential": "moderate",
+      "availability": "otc",
+      "schedulingMode": "scheduled",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": true,
+      "notes": "OTC retinoid; label percentage often not disclosed. Start with the lowest formulation.",
+      "sourceIds": [
+        "s-aad-retinoid-retinol",
+        "s-upmc-retinol-pregnancy",
+        "s-aad-pregnancy"
+      ]
+    },
+    {
+      "id": "adapalene",
+      "name": "Adapalene",
+      "category": "retinoid",
+      "tags": [
+        "retinoid",
+        "acne-active"
+      ],
+      "irritationPotential": "moderate",
+      "availability": "both",
+      "schedulingMode": "scheduled",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": true,
+      "notes": "A retinoid even though sold OTC at low strength. A prescriber's directions override defaults.",
+      "sourceIds": [
+        "s-aad-acne",
+        "s-upmc-retinol-pregnancy",
+        "s-aad-pregnancy"
+      ]
+    },
+    {
+      "id": "tretinoin",
+      "name": "Tretinoin",
+      "category": "retinoid",
+      "tags": [
+        "retinoid",
+        "acne-active"
+      ],
+      "irritationPotential": "high",
+      "availability": "rx",
+      "schedulingMode": "user-directed",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": true,
+      "notes": "Prescription only. The app never invents a schedule; it places only what the user or prescriber entered.",
+      "sourceIds": [
+        "s-aad-acne",
+        "s-aad-retinoid-retinol",
+        "s-upmc-retinol-pregnancy",
+        "s-aad-pregnancy"
+      ]
+    },
+    {
+      "id": "tazarotene",
+      "name": "Tazarotene",
+      "category": "retinoid",
+      "tags": [
+        "retinoid",
+        "acne-active"
+      ],
+      "irritationPotential": "high",
+      "availability": "rx",
+      "schedulingMode": "user-directed",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": true,
+      "notes": "Prescription only. Same handling as tretinoin.",
+      "sourceIds": [
+        "s-upmc-retinol-pregnancy",
+        "s-aad-pregnancy"
+      ]
+    },
+    {
+      "id": "bakuchiol",
+      "name": "Bakuchiol",
+      "category": "retinol-alternative",
+      "tags": [
+        "retinol-alternative"
+      ],
+      "irritationPotential": "low",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "Not a retinoid. No claim is made about equivalence to retinol or about pregnancy safety.",
+      "sourceIds": []
+    },
+    {
+      "id": "glycolic-acid",
+      "name": "Glycolic Acid",
+      "category": "exfoliating-acid",
+      "tags": [
+        "aha",
+        "exfoliant"
+      ],
+      "irritationPotential": "high",
+      "availability": "otc",
+      "schedulingMode": "scheduled",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": false,
+      "notes": "Concentration and pH vary widely between products.",
+      "sourceIds": []
+    },
+    {
+      "id": "lactic-acid",
+      "name": "Lactic Acid",
+      "category": "exfoliating-acid",
+      "tags": [
+        "aha",
+        "exfoliant"
+      ],
+      "irritationPotential": "moderate",
+      "availability": "otc",
+      "schedulingMode": "scheduled",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "mandelic-acid",
+      "name": "Mandelic Acid",
+      "category": "exfoliating-acid",
+      "tags": [
+        "aha",
+        "exfoliant"
+      ],
+      "irritationPotential": "moderate",
+      "availability": "otc",
+      "schedulingMode": "scheduled",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": false,
+      "notes": "Often marketed as gentler; no such claim is made here, so it is treated like other AHAs.",
+      "sourceIds": []
+    },
+    {
+      "id": "salicylic-acid",
+      "name": "Salicylic Acid",
+      "category": "exfoliating-acid",
+      "tags": [
+        "bha",
+        "exfoliant",
+        "acne-active"
+      ],
+      "irritationPotential": "moderate",
+      "availability": "otc",
+      "schedulingMode": "scheduled",
+      "preferredTime": "PM",
+      "pregnancyAdvisory": false,
+      "notes": "Rinse-off cleansers and leave-on products behave differently; see frequencies.json.",
+      "sourceIds": [
+        "s-ro-retinoid-acne"
+      ]
+    },
+    {
+      "id": "benzoyl-peroxide",
+      "name": "Benzoyl Peroxide",
+      "category": "antibacterial",
+      "tags": [
+        "antibacterial",
+        "acne-active"
+      ],
+      "irritationPotential": "high",
+      "availability": "both",
+      "schedulingMode": "scheduled",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "Can bleach fabric. Often present unknowingly in washes and spot treatments, so the ingredient picker must surface it.",
+      "sourceIds": [
+        "s-aad-acne",
+        "s-aafp-aad-acne-guideline"
+      ]
+    },
+    {
+      "id": "sulfur",
+      "name": "Sulfur",
+      "category": "other-active",
+      "tags": [
+        "acne-active"
+      ],
+      "irritationPotential": "moderate",
+      "availability": "otc",
+      "schedulingMode": "scheduled",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "Drying acne ingredient.",
+      "sourceIds": [
+        "s-ro-retinoid-acne"
+      ]
+    },
+    {
+      "id": "azelaic-acid",
+      "name": "Azelaic Acid",
+      "category": "other-active",
+      "tags": [
+        "acne-active",
+        "brightener"
+      ],
+      "irritationPotential": "low",
+      "availability": "both",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "Strength differs between OTC and prescription products; follow product directions.",
+      "sourceIds": []
+    },
+    {
+      "id": "vitamin-c",
+      "name": "Vitamin C",
+      "category": "antioxidant",
+      "tags": [
+        "antioxidant",
+        "brightener"
+      ],
+      "irritationPotential": "moderate",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "AM",
+      "pregnancyAdvisory": false,
+      "notes": "Forms and concentrations vary a lot. The earlier 7/4 nights defaults were removed: no source supports them and tolerance depends on the product.",
+      "sourceIds": []
+    },
+    {
+      "id": "niacinamide",
+      "name": "Niacinamide",
+      "category": "other-active",
+      "tags": [],
+      "irritationPotential": "low",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "No default conflict with vitamin C; see conflicts.json reviewedNoRule.",
+      "sourceIds": [
+        "s-cosmo-niacinamide-vitc",
+        "s-healthline-niacinamide-vitc"
+      ]
+    },
+    {
+      "id": "alpha-arbutin",
+      "name": "Alpha Arbutin",
+      "category": "other-active",
+      "tags": [
+        "brightener"
+      ],
+      "irritationPotential": "low",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "tranexamic-acid",
+      "name": "Tranexamic Acid",
+      "category": "other-active",
+      "tags": [
+        "brightener"
+      ],
+      "irritationPotential": "low",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "Topical cosmetic use only; unrelated to the oral medicine.",
+      "sourceIds": []
+    },
+    {
+      "id": "peptides",
+      "name": "Peptides",
+      "category": "other-active",
+      "tags": [],
+      "irritationPotential": "low",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "A broad group; treated as one gentle bucket.",
+      "sourceIds": []
+    },
+    {
+      "id": "hyaluronic-acid",
+      "name": "Hyaluronic Acid",
+      "category": "hydrator",
+      "tags": [
+        "hydrator",
+        "humectant"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "glycerin",
+      "name": "Glycerin",
+      "category": "hydrator",
+      "tags": [
+        "hydrator",
+        "humectant"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "urea",
+      "name": "Urea",
+      "category": "hydrator",
+      "tags": [
+        "hydrator",
+        "humectant"
+      ],
+      "irritationPotential": "low",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "Behaviour changes with concentration; follow product directions.",
+      "sourceIds": []
+    },
+    {
+      "id": "ceramides",
+      "name": "Ceramides",
+      "category": "hydrator",
+      "tags": [
+        "hydrator",
+        "barrier"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "squalane",
+      "name": "Squalane",
+      "category": "hydrator",
+      "tags": [
+        "hydrator"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "panthenol",
+      "name": "Panthenol (B5)",
+      "category": "hydrator",
+      "tags": [
+        "hydrator",
+        "humectant"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "allantoin",
+      "name": "Allantoin",
+      "category": "soothing",
+      "tags": [
+        "soothing"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "colloidal-oatmeal",
+      "name": "Colloidal Oatmeal",
+      "category": "soothing",
+      "tags": [
+        "soothing",
+        "barrier"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "Oat allergy is possible; the allergy-exclusion list must be able to remove it.",
+      "sourceIds": []
+    },
+    {
+      "id": "centella",
+      "name": "Centella Asiatica",
+      "category": "soothing",
+      "tags": [
+        "soothing"
+      ],
+      "irritationPotential": "none",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "any",
+      "pregnancyAdvisory": false,
+      "notes": "",
+      "sourceIds": []
+    },
+    {
+      "id": "sunscreen-filters",
+      "name": "Sunscreen (SPF)",
+      "category": "sunscreen",
+      "tags": [
+        "spf"
+      ],
+      "irritationPotential": "low",
+      "availability": "otc",
+      "schedulingMode": "every-routine",
+      "preferredTime": "AM",
+      "pregnancyAdvisory": false,
+      "notes": "Daytime protection. Follow label directions; AAD guidance is SPF 30+, broad-spectrum, water-resistant, reapply about every 2 hours outdoors.",
+      "sourceIds": [
+        "s-aad-sunscreen-faq",
+        "s-aad-retinoid-retinol"
+      ]
+    }
+  ]
+}
