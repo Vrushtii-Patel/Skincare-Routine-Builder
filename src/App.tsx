@@ -11,9 +11,11 @@ import { Week } from './pages/Week';
 import { Compatibility } from './pages/Compatibility';
 import { Settings } from './pages/Settings';
 import { NotFound } from './pages/NotFound';
+import { useCloudSync } from './hooks/useCloudSync';
 
 export const App: React.FC = () => {
   const isOnboarded = useStore((state) => state.profile.isOnboarded);
+  useCloudSync();
 
   return (
     <Routes>
@@ -44,4 +46,3 @@ export const App: React.FC = () => {
     </Routes>
   );
 };
-

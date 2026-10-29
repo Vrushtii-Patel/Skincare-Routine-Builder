@@ -4,16 +4,18 @@ import { signInWithGoogleService, signOutService } from '../services/auth';
 
 export function useAuth() {
   const user = useStore((state) => state.user);
-  const setUser = useStore((state) => state.setUser);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // The store's user is set by onAuthStateChanged (see useCloudSync),
+  // so these only trigger the Firebase calls.
   const loginWithGoogle = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const authUser = await signInWithGoogleService();
-      setUser(authUser);
+      await signInWithGoogleService();
     } catch (err) {
-      console.error('Sign-in error:', err);
+      setError(err instanceof Error ? err.message : 'Sign-in failed');
     } finally {
       setLoading(false);
     }
@@ -23,18 +25,10 @@ export function useAuth() {
     setLoading(true);
     try {
       await signOutService();
-      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  return {
-    user,
-    isAuthenticated: !!user,
-    loading,
-    loginWithGoogle,
-    logout,
-  };
+  return { user, isAuthenticated: !!user, loading, error, loginWithGoogle, logout };
 }
-

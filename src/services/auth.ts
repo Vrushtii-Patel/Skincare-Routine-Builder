@@ -1,6 +1,15 @@
 /**
- * Auth Service Interface & Local-First Provider
+ * Auth service: Google sign-in only.
  */
+
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  type User,
+} from 'firebase/auth';
+import { getFirebase } from './firebase';
 
 export interface UserSession {
   uid: string;
@@ -9,18 +18,35 @@ export interface UserSession {
   photoURL?: string;
 }
 
-export async function signInWithGoogleService(): Promise<UserSession> {
-  // If real Firebase is configured, real auth can be attached.
-  // By default, provides authentic local user session without breaking offline usage.
+function toSession(user: User): UserSession {
   return {
-    uid: 'user_skincare_journal_1',
-    displayName: 'Elena Vance',
-    email: 'elena@skincarejournal.io',
-    photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
+    uid: user.uid,
+    displayName: user.displayName ?? 'Skincare friend',
+    email: user.email ?? '',
+    photoURL: user.photoURL ?? undefined,
   };
 }
 
-export async function signOutService(): Promise<void> {
-  // Clear any remote auth token
+export async function signInWithGoogleService(): Promise<UserSession> {
+  const fb = getFirebase();
+  if (!fb) {
+    throw new Error('Firebase is not configured. Add the VITE_FIREBASE_* keys to .env.');
+  }
+  const credential = await signInWithPopup(fb.auth, new GoogleAuthProvider());
+  return toSession(credential.user);
 }
 
+export async function signOutService(): Promise<void> {
+  const fb = getFirebase();
+  if (fb) await signOut(fb.auth);
+}
+
+/** Fires on page load (restored session) and on every sign-in / sign-out. */
+export function subscribeToAuth(callback: (user: UserSession | null) => void): () => void {
+  const fb = getFirebase();
+  if (!fb) {
+    callback(null);
+    return () => undefined;
+  }
+  return onAuthStateChanged(fb.auth, (user) => callback(user ? toSession(user) : null));
+}

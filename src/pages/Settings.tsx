@@ -11,6 +11,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { useAuth } from '../hooks/useAuth';
 import { Modal } from '../components/ui/Modal';
 import { loadReferenceData } from '../lib/loadData';
 import { SkinType } from '../types';
@@ -24,6 +25,7 @@ export const Settings: React.FC = () => {
   const importData = useStore((state) => state.importData);
   const clearAllData = useStore((state) => state.clearAllData);
   const loadSampleData = useStore((state) => state.loadSampleData);
+  const { user, loading, error, loginWithGoogle, logout } = useAuth();
 
   const [skinType, setSkinType] = useState<SkinType>(profile.skinType);
   const [sensitive, setSensitive] = useState<boolean>(profile.sensitive);
@@ -82,6 +84,24 @@ export const Settings: React.FC = () => {
         <h1 className="font-editorial text-3xl sm:text-4xl font-semibold text-cocoa-900 mt-1">
           Settings & Profile
         </h1>
+      </div>
+
+      {/* Account (temporary, for testing sync) */}
+      <div className="card-editorial p-6 space-y-3">
+        <h3 className="font-editorial text-xl font-semibold text-cocoa-900">Account</h3>
+        {user ? (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-cocoa-700">Signed in as {user.email}</p>
+            <button type="button" onClick={logout} disabled={loading} className="btn-outline text-xs">
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <button type="button" onClick={loginWithGoogle} disabled={loading} className="btn-outline text-xs">
+            Continue with Google
+          </button>
+        )}
+        {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
 
       {/* Profile Preferences */}
@@ -159,11 +179,10 @@ export const Settings: React.FC = () => {
 
         {importStatus && (
           <div
-            className={`p-3.5 rounded-2xl text-xs border ${
-              importStatus.success
+            className={`p-3.5 rounded-2xl text-xs border ${importStatus.success
                 ? 'bg-sage-50 text-sage-900 border-sage-300'
                 : 'bg-rose-50 text-rose-900 border-rose-300'
-            }`}
+              }`}
           >
             {importStatus.message}
           </div>

@@ -284,6 +284,13 @@ export const useStore = create<AppState>()(
       name: 'skincare-routine-builder-storage',
       version: CURRENT_SCHEMA_VERSION,
       storage: createJSONStorage(() => localStorage),
+      // Don't persist `user`: it is set from Firebase auth on every load
+      partialize: (state) => ({
+        version: state.version,
+        profile: state.profile,
+        products: state.products,
+        checkIns: state.checkIns,
+      }),
       migrate: (persistedState: any, version: number) => {
         if (version === 0) {
           // Schema 0 -> 1 migration if needed
@@ -297,4 +304,3 @@ export const useStore = create<AppState>()(
     }
   )
 );
-
