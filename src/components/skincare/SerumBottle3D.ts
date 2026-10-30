@@ -10,77 +10,77 @@ export function createSerumBottle(): THREE.Group {
   const ctx = labelCanvas.getContext('2d');
   if (ctx) {
     // Background
-    ctx.fillStyle = '#FFF8F9';
+    ctx.fillStyle = '#FFFDFC';
     ctx.fillRect(0, 0, 1024, 1024);
 
     // Outer and inner border
-    ctx.strokeStyle = '#E8B4C2';
-    ctx.lineWidth = 6;
-    ctx.strokeRect(40, 40, 944, 944);
+    ctx.strokeStyle = '#801D38';
+    ctx.lineWidth = 10;
+    ctx.strokeRect(36, 36, 952, 952);
 
-    ctx.strokeStyle = '#F2D3DC';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(56, 56, 912, 912);
+    ctx.strokeStyle = '#B96F87';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(54, 54, 916, 916);
 
     // Header badge
-    ctx.fillStyle = '#886875';
-    ctx.font = '600 32px Poppins, sans-serif';
+    ctx.fillStyle = '#401826';
+    ctx.font = 'bold 36px sans-serif';
     ctx.textAlign = 'center';
     ctx.letterSpacing = '8px';
     ctx.fillText('R I T U A L', 512, 160);
 
     // Number
-    ctx.fillStyle = '#B96F87';
-    ctx.font = '700 48px Poppins, sans-serif';
-    ctx.fillText('N° 01', 512, 240);
+    ctx.fillStyle = '#801D38';
+    ctx.font = 'bold 54px sans-serif';
+    ctx.fillText('N° 01', 512, 245);
 
     // Divider line
-    ctx.strokeStyle = '#D88FA6';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#801D38';
+    ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(380, 275);
-    ctx.lineTo(644, 275);
+    ctx.moveTo(360, 280);
+    ctx.lineTo(664, 280);
     ctx.stroke();
 
     // Botanical twig icon sketch
-    ctx.strokeStyle = '#886875';
-    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#401826';
+    ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(512, 380);
-    ctx.quadraticCurveTo(500, 340, 512, 305);
+    ctx.moveTo(512, 385);
+    ctx.quadraticCurveTo(498, 345, 512, 310);
     ctx.stroke();
     // leaves
     ctx.beginPath();
-    ctx.ellipse(492, 335, 18, 9, -Math.PI / 4, 0, Math.PI * 2);
-    ctx.ellipse(532, 350, 18, 9, Math.PI / 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#D88FA6';
+    ctx.ellipse(490, 340, 22, 11, -Math.PI / 4, 0, Math.PI * 2);
+    ctx.ellipse(534, 355, 22, 11, Math.PI / 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#801D38';
     ctx.fill();
 
     // Title
-    ctx.fillStyle = '#3D2630';
-    ctx.font = '800 62px Poppins, sans-serif';
-    ctx.letterSpacing = '2px';
-    ctx.fillText('HYDRA-GLOW', 512, 475);
-    ctx.font = '700 40px Poppins, sans-serif';
-    ctx.fillStyle = '#B96F87';
-    ctx.fillText('ACTIVE SERUM', 512, 535);
+    ctx.fillStyle = '#1A0A12';
+    ctx.font = '900 68px sans-serif';
+    ctx.letterSpacing = '3px';
+    ctx.fillText('HYDRA-GLOW', 512, 480);
+    ctx.font = 'bold 44px sans-serif';
+    ctx.fillStyle = '#801D38';
+    ctx.fillText('ACTIVE SERUM', 512, 542);
 
     // Formula Actives
-    ctx.font = '500 30px Poppins, sans-serif';
-    ctx.fillStyle = '#4A333E';
-    ctx.fillText('5% Niacinamide + Multi-Peptides', 512, 630);
-    ctx.font = '400 26px Poppins, sans-serif';
-    ctx.fillStyle = '#886875';
-    ctx.fillText('Hyaluronic Acid & Centella Asiatica', 512, 680);
+    ctx.font = 'bold 34px sans-serif';
+    ctx.fillStyle = '#220D18';
+    ctx.fillText('5% Niacinamide + Multi-Peptides', 512, 638);
+    ctx.font = 'bold 28px sans-serif';
+    ctx.fillStyle = '#401826';
+    ctx.fillText('Hyaluronic Acid & Centella Asiatica', 512, 688);
 
     // Claims
-    ctx.font = '500 24px Poppins, sans-serif';
-    ctx.fillStyle = '#B96F87';
-    ctx.fillText('BARRIER DEFENSE • RESTORATIVE', 512, 770);
+    ctx.font = 'bold 26px sans-serif';
+    ctx.fillStyle = '#801D38';
+    ctx.fillText('BARRIER DEFENSE • RESTORATIVE', 512, 775);
 
     // Bottom Volume
-    ctx.font = '600 26px Poppins, sans-serif';
-    ctx.fillStyle = '#5A3D49';
+    ctx.font = 'bold 28px sans-serif';
+    ctx.fillStyle = '#1A0A12';
     ctx.fillText('30 ML / 1.0 FL. OZ.', 512, 880);
   }
 
@@ -119,19 +119,20 @@ export function createSerumBottle(): THREE.Group {
   const glassGeo = new THREE.LatheGeometry(glassPoints, 48);
   const glassMat = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
-    transmission: 0.93,
-    opacity: 1,
+    opacity: 0.42,
     transparent: true,
-    roughness: 0.05,
-    ior: 1.52,
-    thickness: 0.45,
+    roughness: 0.06,
+    metalness: 0.08,
+    ior: 1.5,
     specularIntensity: 1.0,
     specularColor: new THREE.Color(0xffffff),
     clearcoat: 1.0,
-    clearcoatRoughness: 0.03,
-    reflectivity: 0.92,
+    clearcoatRoughness: 0.04,
+    reflectivity: 0.96,
+    depthWrite: false,
   });
   const glassMesh = new THREE.Mesh(glassGeo, glassMat);
+  glassMesh.renderOrder = 2;
   bottleGroup.add(glassMesh);
 
   // 3. Inner Liquid (Blush Pink Skincare Serum)
@@ -149,53 +150,59 @@ export function createSerumBottle(): THREE.Group {
   ];
 
   const liquidGeo = new THREE.LatheGeometry(liquidPoints, 36);
-  const liquidMat = new THREE.MeshPhysicalMaterial({
-    color: 0xF7B5C6,
-    transmission: 0.52,
-    opacity: 0.96,
+  const liquidMat = new THREE.MeshStandardMaterial({
+    color: 0xFA8EA8,
+    roughness: 0.22,
+    metalness: 0.06,
     transparent: true,
-    roughness: 0.1,
-    ior: 1.35,
-    attenuationColor: new THREE.Color(0xDF6989),
-    attenuationDistance: 0.6,
-    specularIntensity: 0.95,
+    opacity: 0.94,
   });
   const liquidMesh = new THREE.Mesh(liquidGeo, liquidMat);
+  liquidMesh.renderOrder = 1;
   bottleGroup.add(liquidMesh);
 
   // 4. Internal Pipette (Glass Tube + Internal Droplet Column)
   const pipetteGeo = new THREE.CylinderGeometry(0.055, 0.055, 1.82, 24);
   const pipetteMat = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
-    transmission: 0.92,
-    opacity: 0.9,
+    opacity: 0.78,
     transparent: true,
-    roughness: 0.06,
-    ior: 1.5,
+    roughness: 0.08,
+    clearcoat: 0.9,
+    depthWrite: false,
   });
   const pipetteMesh = new THREE.Mesh(pipetteGeo, pipetteMat);
   pipetteMesh.position.y = 0.08;
+  pipetteMesh.renderOrder = 1;
   bottleGroup.add(pipetteMesh);
 
   // Pipette tapered tip
   const tipGeo = new THREE.CylinderGeometry(0.055, 0.02, 0.14, 24);
   const tipMesh = new THREE.Mesh(tipGeo, pipetteMat);
   tipMesh.position.y = -0.90;
+  tipMesh.renderOrder = 1;
   bottleGroup.add(tipMesh);
 
   // Drawn serum column inside pipette
   const innerLiquidGeo = new THREE.CylinderGeometry(0.038, 0.038, 1.25, 16);
-  const innerLiquidMesh = new THREE.Mesh(innerLiquidGeo, liquidMat);
+  const innerLiquidMat = new THREE.MeshStandardMaterial({
+    color: 0xE8587D,
+    roughness: 0.2,
+    metalness: 0.05,
+    transparent: true,
+    opacity: 0.96,
+  });
+  const innerLiquidMesh = new THREE.Mesh(innerLiquidGeo, innerLiquidMat);
   innerLiquidMesh.position.y = -0.22;
+  innerLiquidMesh.renderOrder = 1;
   bottleGroup.add(innerLiquidMesh);
 
   // 5. Dropper Metallic Collar (Rose Gold)
   const collarGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.44, 48);
   const collarMat = new THREE.MeshStandardMaterial({
-    color: 0xE8B8C2,
+    color: 0xE29BAF,
     metalness: 0.88,
     roughness: 0.22,
-    envMapIntensity: 1.2,
   });
   const collarMesh = new THREE.Mesh(collarGeo, collarMat);
   collarMesh.position.y = 1.06;
@@ -223,9 +230,9 @@ export function createSerumBottle(): THREE.Group {
   ];
   const bulbGeo = new THREE.LatheGeometry(bulbPoints, 36);
   const bulbMat = new THREE.MeshStandardMaterial({
-    color: 0xFFF5F7,
-    roughness: 0.65,
-    metalness: 0.04,
+    color: 0xFFF2F5,
+    roughness: 0.55,
+    metalness: 0.02,
   });
   const bulbMesh = new THREE.Mesh(bulbGeo, bulbMat);
   bottleGroup.add(bulbMesh);
@@ -233,8 +240,8 @@ export function createSerumBottle(): THREE.Group {
   // 7. Minimalist Curved Wrap-around Label
   // Theta length ~ 150 degrees (wraps around front)
   const labelGeo = new THREE.CylinderGeometry(
-    0.685,
-    0.685,
+    0.686,
+    0.686,
     1.1,
     48,
     1,
@@ -244,21 +251,22 @@ export function createSerumBottle(): THREE.Group {
   );
   const labelMat = new THREE.MeshStandardMaterial({
     map: labelTexture,
-    roughness: 0.32,
-    metalness: 0.05,
+    roughness: 0.65,
+    metalness: 0.02,
     side: THREE.DoubleSide,
   });
   const labelMesh = new THREE.Mesh(labelGeo, labelMat);
   labelMesh.position.y = -0.24;
+  labelMesh.renderOrder = 3;
   bottleGroup.add(labelMesh);
 
   // 8. Tiny Floating Micro-bubbles inside serum
-  const bubbleMat = new THREE.MeshPhysicalMaterial({
+  const bubbleMat = new THREE.MeshStandardMaterial({
     color: 0xffffff,
-    transmission: 0.95,
-    roughness: 0.04,
-    ior: 1.25,
-    specularIntensity: 1.0,
+    roughness: 0.1,
+    metalness: 0.1,
+    transparent: true,
+    opacity: 0.9,
   });
 
   const bubbleCoords = [
@@ -273,6 +281,7 @@ export function createSerumBottle(): THREE.Group {
     const geo = new THREE.SphereGeometry(b.r, 16, 16);
     const m = new THREE.Mesh(geo, bubbleMat);
     m.position.set(b.x, b.y, b.z);
+    m.renderOrder = 2;
     bottleGroup.add(m);
   });
 
@@ -281,8 +290,8 @@ export function createSerumBottle(): THREE.Group {
 
   // Orient so front (+Z of label) faces +X to match Melli's coordinate system
   // (In Melli: yaw 0 = facing right +X, yaw 90 = facing camera +Z)
-  // Our label is centered around +Z, so rotating around Y by -PI/2 aligns +Z with +X:
-  bottleGroup.rotation.y = -Math.PI / 2;
+  // Rotating around Y by +PI/2 aligns +Z with +X:
+  bottleGroup.rotation.y = Math.PI / 2;
 
   const root = new THREE.Group();
   root.add(bottleGroup);

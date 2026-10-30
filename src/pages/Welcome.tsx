@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -17,19 +17,24 @@ interface Keyframe {
 }
 
 const K_DESKTOP: Keyframe[] = [
-  { x: -0.03, y: -0.12, s: 1.00, yaw: 150, pitch: 6,  roll: -4 },
-  { x: -0.30, y: -0.04, s: 1.00, yaw: 125, pitch: 10, roll:  6 },
-  { x:  0.22, y: -0.30, s: 1.00, yaw:  40, pitch: -6, roll: -8 },
-  { x: -0.22, y:  0.02, s: 0.96, yaw: 160, pitch: 8,  roll:  4 },
-  { x:  0.02, y: -0.08, s: 0.92, yaw: 105, pitch: 4,  roll:  0 },
+  // 1. Hero: Repositioned to the right and lowered so headline is 100% legible and completely un-obscured
+  { x: 0.28, y: -0.68, s: 0.74, yaw: 140, pitch: 6,  roll: -4 },
+  // 2. Section 01 (Needs): Left-centre behind/alongside cica leaves, clear of right-hand text
+  { x: -0.42, y: -0.06, s: 0.90, yaw: 125, pitch: 8,  roll:  5 },
+  // 3. Section 02 (Ritual): Dramatic visual towards the right on dark background, text on left
+  { x: 0.38, y: -0.16, s: 1.00, yaw: 40,  pitch: -4, roll: -6 },
+  // 4. Section 03 (Step Count): Towards left with aloe & chamomile, clear text area on right
+  { x: -0.40, y: -0.10, s: 0.90, yaw: 150, pitch: 6,  roll:  4 },
+  // 5. Final CTA: Scaled down, positioned beside closing headline and CTA button
+  { x: 0.44, y:  0.02, s: 0.40, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 const K_MOBILE: Keyframe[] = [
-  { x: 0.05, y: -0.02, s: 0.75, yaw: 150, pitch:  6, roll: -4 },
-  { x: 0.10, y:  0.12, s: 0.80, yaw: 125, pitch: 10, roll:  6 },
-  { x: 0.15, y: -0.20, s: 0.75, yaw:  40, pitch: -6, roll: -8 },
-  { x: 0.25, y:  0.20, s: 0.72, yaw: 160, pitch:  8, roll:  4 },
-  { x: 0.00, y:  0.10, s: 0.70, yaw: 105, pitch:  4, roll:  0 },
+  { x: 0.18, y: -0.46, s: 0.58, yaw: 140, pitch: 6,  roll: -4 },
+  { x: -0.24, y: 0.10, s: 0.68, yaw: 125, pitch: 8,  roll:  5 },
+  { x: 0.24, y: -0.12, s: 0.72, yaw: 40,  pitch: -4, roll: -6 },
+  { x: -0.24, y: 0.10, s: 0.66, yaw: 150, pitch: 6,  roll:  4 },
+  { x: 0.26, y:  0.18, s: 0.42, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 function ease(t: number): number {
@@ -78,6 +83,7 @@ export const Welcome: React.FC = () => {
   const isOnboarded = useStore((state) => state.profile.isOnboarded);
   const loadSampleData = useStore((state) => state.loadSampleData);
 
+  const [webGlFailed, setWebGlFailed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const mainRef = useRef<HTMLElement | null>(null);
@@ -196,20 +202,24 @@ export const Welcome: React.FC = () => {
       );
       camera.position.set(0, 0, 10);
 
-      // Studio Skincare Lights
-      const hemiLight = new THREE.HemisphereLight(0xfff1f4, 0xb96f87, 1.35);
+      // Studio Skincare Lights - Balanced for crystal glass & crisp label
+      const hemiLight = new THREE.HemisphereLight(0xfff1f4, 0xb96f87, 1.0);
       scene.add(hemiLight);
 
-      const dirLight1 = new THREE.DirectionalLight(0xfff5ee, 2.7);
+      const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.6);
       dirLight1.position.set(3, 5, 6);
       scene.add(dirLight1);
 
-      const dirLight2 = new THREE.DirectionalLight(0xe8b8cb, 2.2);
+      const dirLight2 = new THREE.DirectionalLight(0xffdbe5, 1.2);
       dirLight2.position.set(-5, 2, -4);
       scene.add(dirLight2);
 
-      const pointLight = new THREE.PointLight(0xffffff, 1.2, 10);
-      pointLight.position.set(0, 0, 3.5);
+      const frontKey = new THREE.DirectionalLight(0xfff8fa, 1.0);
+      frontKey.position.set(0, 1, 8);
+      scene.add(frontKey);
+
+      const pointLight = new THREE.PointLight(0xffffff, 0.8, 12);
+      pointLight.position.set(0, 0, 4);
       scene.add(pointLight);
 
       // Group Hierarchy: scene > flight (position, scale, yaw) > objectRoot (roll/pitch) > serumBottle
@@ -258,6 +268,22 @@ export const Welcome: React.FC = () => {
       const clock = new THREE.Clock();
 
       canvas.classList.add('ready');
+      canvas.style.opacity = '1';
+
+      // Immediate Initial Frame Render
+      const vFOVInit = (camera.fov * Math.PI) / 180;
+      const halfHInit = Math.tan(vFOVInit / 2) * camera.position.z;
+      const halfWInit = halfHInit * camera.aspect;
+      flight.position.set(cur.x * halfWInit, cur.y * halfHInit, 0);
+      flight.scale.setScalar(halfHInit * 2 * 0.30 * cur.s);
+      flight.rotation.set(0, -(cur.yaw * Math.PI) / 180, 0);
+      objectRoot.rotation.set(
+        (cur.roll * Math.PI) / 180,
+        0,
+        (cur.pitch * Math.PI) / 180,
+        'YZX'
+      );
+      renderer.render(scene, camera);
 
       // Animation Loop
       const renderLoop = () => {
@@ -330,11 +356,11 @@ export const Welcome: React.FC = () => {
         document.body.classList.remove('loaded', 'on-dark');
         if (renderer) {
           renderer.dispose();
-          renderer.forceContextLoss();
         }
       };
     } catch (err) {
       console.warn('WebGL initialization fallback:', err);
+      setWebGlFailed(true);
       if (loaderRef.current) loaderRef.current.classList.add('done');
       document.body.classList.add('loaded');
       return () => {
@@ -372,7 +398,41 @@ export const Welcome: React.FC = () => {
       </nav>
 
       {/* Fixed 3D Canvas */}
-      <canvas id="bee" ref={canvasRef} aria-hidden="true" />
+      <canvas id="bee" ref={canvasRef} aria-hidden="true" style={{ opacity: 1 }} />
+
+      {/* Fallback Serum Bottle for environments without WebGL */}
+      {webGlFailed && (
+        <div
+          className="fixed inset-0 z-20 pointer-events-none flex items-center justify-center"
+          style={{ transform: 'translate(18vw, 15vh)' }}
+        >
+          <div className="w-[220px] md:w-[260px] filter drop-shadow-2xl">
+            <svg viewBox="0 0 200 400" className="w-full h-auto" fill="none">
+              {/* Dropper bulb */}
+              <path d="M75 55 C75 25, 125 25, 125 55 L120 70 L80 70 Z" fill="#FFF5F7" stroke="#E8B8C2" strokeWidth="2" />
+              {/* Collar */}
+              <rect x="68" y="70" width="64" height="28" rx="4" fill="#E8B8C2" stroke="#D88FA6" strokeWidth="2" />
+              <rect x="65" y="94" width="70" height="8" rx="2" fill="#D88FA6" />
+              {/* Glass Bottle Body */}
+              <rect x="40" y="102" width="120" height="240" rx="28" fill="#FFF8FA" fillOpacity="0.45" stroke="#E8B8C2" strokeWidth="3" />
+              {/* Serum Liquid inside */}
+              <rect x="46" y="160" width="108" height="174" rx="22" fill="#FA8EA8" fillOpacity="0.92" />
+              {/* Glass Pipette */}
+              <rect x="94" y="98" width="12" height="210" rx="3" fill="#FFFFFF" fillOpacity="0.75" />
+              <rect x="96" y="170" width="8" height="130" rx="2" fill="#E8587D" fillOpacity="0.95" />
+              {/* Luxury Label */}
+              <rect x="44" y="175" width="112" height="110" rx="6" fill="#FFF8F9" stroke="#E8B8C2" strokeWidth="1.5" />
+              <text x="100" y="195" textAnchor="middle" fill="#886875" fontSize="7" fontWeight="600" letterSpacing="2">RITUAL</text>
+              <text x="100" y="210" textAnchor="middle" fill="#B96F87" fontSize="11" fontWeight="700">N° 01</text>
+              <line x1="75" y1="216" x2="125" y2="216" stroke="#D88FA6" strokeWidth="1" />
+              <text x="100" y="234" textAnchor="middle" fill="#3D2630" fontSize="10" fontWeight="800">HYDRA-GLOW</text>
+              <text x="100" y="246" textAnchor="middle" fill="#B96F87" fontSize="8" fontWeight="600">ACTIVE SERUM</text>
+              <text x="100" y="260" textAnchor="middle" fill="#5A3D49" fontSize="6">5% Niacinamide + Multi-Peptides</text>
+              <text x="100" y="274" textAnchor="middle" fill="#5A3D49" fontSize="6" fontWeight="600">30 ML / 1.0 FL. OZ.</text>
+            </svg>
+          </div>
+        </div>
+      )}
 
       {/* Main Full-Viewport Scroll Story */}
       <main ref={mainRef}>
