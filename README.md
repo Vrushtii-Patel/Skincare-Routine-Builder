@@ -12,9 +12,10 @@ An editorial, evidence-informed web application and daily skincare journal desig
 
 ## 🔗 Live Application & Demo
 
-- **Live Application:** [https://vrushtii-patel.github.io/Skincare-Routine-Builder/](https://vrushtii-patel.github.io/Skincare-Routine-Builder/)
+- **Live Application:** [https://skincare-routine-builder-jet.vercel.app](https://skincare-routine-builder-jet.vercel.app)
+- **Instant Demo:** [https://skincare-routine-builder-jet.vercel.app/welcome?demo=1](https://skincare-routine-builder-jet.vercel.app/welcome?demo=1)
 - **Source Repository:** [https://github.com/Vrushtii-Patel/Skincare-Routine-Builder](https://github.com/Vrushtii-Patel/Skincare-Routine-Builder)
-- **Instant Demo:** Launch with a pre-configured sample shelf and routines by appending `?demo=1` to the welcome URL: [`/welcome?demo=1`](https://vrushtii-patel.github.io/Skincare-Routine-Builder/#/welcome?demo=1).
+- **Instant Demo:** Launch with a pre-configured sample shelf and routines by visiting: [https://skincare-routine-builder-jet.vercel.app/welcome?demo=1](https://skincare-routine-builder-jet.vercel.app/welcome?demo=1).
 
 ---
 
@@ -96,6 +97,7 @@ An editorial, evidence-informed web application and daily skincare journal desig
 | **Icons** | Lucide Icons |
 | **Celebration Motion**| `canvas-confetti` |
 | **Testing** | Vitest + React Testing Library + JSDOM (**50 / 50 unit and integration tests passing**) |
+| **Hosting & Deployment** | Vercel (Continuous deployment with SPA rewrites via `vercel.json`) |
 
 ---
 
@@ -205,6 +207,30 @@ This application is an educational and organizational tool. It does not provide 
 - Every page displays: *"General skincare organiser, not medical advice. It cannot diagnose skin conditions or replace a dermatologist."*
 - Retinoid advisory: *"If you are pregnant or planning a pregnancy, do not use topical retinoids without medical advice. If breastfeeding, ask your clinician whether your specific product is appropriate."*
 - Patch-testing advice reflects American Academy of Dermatology (AAD) recommendations (testing on inner forearm twice daily for 7–10 days).
+
+---
+
+## 🌐 Deployment
+
+The application is deployed and hosted on **Vercel** with continuous deployment automatically triggered upon each push to the `main` branch.
+
+### Environment Variables
+Configure the following six environment variables in your Vercel Project Settings (**Project Settings > Environment Variables**) to connect Cloud Firebase services:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+*(The application remains fully functional in local-first offline mode if these variables are omitted).*
+
+### Firebase Authorized Domains
+To allow Google Sign-In to authenticate users on your Vercel deployment:
+1. Open the [Firebase Console](https://console.firebase.google.com/).
+2. Navigate to **Authentication > Settings > Authorized domains**.
+3. Add your Vercel production domain (e.g. `skincare-routine-builder-jet.vercel.app` or your custom domain).
 
 ---
 

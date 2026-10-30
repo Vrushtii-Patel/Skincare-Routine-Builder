@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Dropper Bulb -->
+  <path d="M13 2.5C13 1.67 13.67 1 14.5 1H17.5C18.33 1 19 1.67 19 2.5V5.5H13V2.5Z" fill="#886875"/>
+  <!-- Metallic Collar -->
+  <rect x="11.5" y="5.5" width="9" height="3" rx="1" fill="#E8B8C2" stroke="#3D2630" stroke-width="0.8"/>
+  <!-- Glass Bottle Body -->
+  <rect x="7" y="9.5" width="18" height="21" rx="4.5" fill="#FFF1F4" stroke="#3D2630" stroke-width="1.2"/>
+  <!-- Blush Pink Serum Fill -->
+  <path d="M7.8 17.5C7.8 17.5 11 16 16 16C21 16 24.2 17.5 24.2 17.5V26C24.2 28.2 22.4 30 20.2 30H11.8C9.6 30 7.8 28.2 7.8 26V17.5Z" fill="#F7B5C6" fill-opacity="0.85"/>
+  <!-- Inner Dropper Pipette -->
+  <line x1="16" y1="8.5" x2="16" y2="23" stroke="#886875" stroke-width="1" stroke-dasharray="1.5 1.5"/>
+  <!-- Droplet Accent -->
+  <circle cx="16" cy="24.5" r="1.2" fill="#D88FA6"/>
+  <!-- Minimalist Label -->
+  <rect x="10.5" y="19" width="11" height="8" rx="1.5" fill="#FFFFFF" fill-opacity="0.95"/>
+  <line x1="12.5" y1="21.5" x2="19.5" y2="21.5" stroke="#B96F87" stroke-width="0.8" stroke-linecap="round"/>
+  <line x1="13.5" y1="24" x2="18.5" y2="24" stroke="#886875" stroke-width="0.6" stroke-linecap="round"/>
+</svg>
+
