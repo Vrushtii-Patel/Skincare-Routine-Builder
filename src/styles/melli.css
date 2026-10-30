@@ -1,0 +1,602 @@
+:root {
+  --ink: #3D2630;
+  --muted: #886875;
+  --lilac: #FBE8EE;
+  --hero-bg: #FFF1F4;
+  --light-pink: #F6DCE5;
+  --dusty-rose: #B96F87;
+  --num: #D88FA6;
+  --num-dark: rgba(255, 240, 245, 0.65);
+  --violet: #D88FA6;
+  --pad: clamp(18px, 3.2vw, 46px);
+}
+
+.melli-page {
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--lilac);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  position: relative;
+}
+
+.melli-page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* NAV (fixed) */
+.melli-page .nav {
+  position: fixed;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 18px var(--pad) 0;
+  pointer-events: none;
+  transition: color 0.5s ease;
+}
+
+.melli-page .nav > * {
+  pointer-events: auto;
+}
+
+.melli-page .logo {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  margin-right: clamp(28px, 5vw, 66px);
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+}
+
+.melli-page .logo svg {
+  width: 38px;
+  height: 38px;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.melli-page .logo:hover svg {
+  transform: rotate(90deg);
+}
+
+.melli-page .nav__links {
+  display: flex;
+  gap: clamp(22px, 4.5vw, 58px);
+  font-size: 15.5px;
+  font-weight: 400;
+}
+
+.melli-page .nav__links a {
+  position: relative;
+}
+
+.melli-page .nav__links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+.melli-page .nav__links a:hover::after {
+  transform: scaleX(1);
+}
+
+.melli-page .nav__cta {
+  margin-left: auto;
+  font-weight: 600;
+  font-size: 16px;
+  padding-right: clamp(0px, 4vw, 70px);
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  transition: opacity 0.2s ease;
+}
+
+.melli-page .nav__cta:hover {
+  opacity: 0.8;
+}
+
+body.on-dark .nav,
+body.on-dark .badge {
+  color: #fff !important;
+}
+
+/* BADGE (fixed bottom-right) */
+.melli-page .badge {
+  position: fixed;
+  z-index: 30;
+  right: var(--pad);
+  bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #4A333E;
+  transition: color 0.5s ease;
+  pointer-events: auto;
+}
+
+.melli-page .badge b {
+  font-weight: 700;
+  color: var(--violet);
+}
+
+body.on-dark .badge b {
+  color: #FFF0F5 !important;
+}
+
+.melli-page .badge svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* BEE/SERUM CANVAS */
+#bee {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+#bee.ready {
+  opacity: 1;
+}
+
+/* SECTIONS */
+.melli-page section {
+  position: relative;
+  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.melli-page .flower {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+}
+
+/* HERO */
+.melli-page .hero {
+  background: var(--hero-bg) url("https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261016_130303_301c35dd-e2d1-4b40-a396-2b53f884d787.png") center/cover no-repeat;
+  overflow: visible;
+  z-index: 3;
+}
+
+.melli-page .hero h1 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 15.5vh;
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(42px, 6.25vw, 112px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.45);
+  will-change: transform;
+  z-index: 2;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.melli-page .hero h1 .line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+
+.melli-page .hero h1 .line span {
+  display: inline-block;
+  transform: translateY(110%);
+}
+
+body.loaded .hero h1 .line span {
+  animation: melliRise 1.1s cubic-bezier(0.2, 0.8, 0.15, 1) forwards;
+}
+
+.melli-page .hero h1 .line:nth-child(2) span {
+  animation-delay: 0.12s;
+}
+
+@keyframes melliRise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+.melli-page .hero__side {
+  position: absolute;
+  right: clamp(24px, 6.5vw, 120px);
+  top: 59vh;
+  width: min(280px, 80vw);
+  z-index: 2;
+  opacity: 0;
+}
+
+body.loaded .hero__side {
+  animation: melliFade 1s 0.7s ease forwards;
+}
+
+.melli-page .hero__side p {
+  font-size: clamp(15px, 1.45vw, 20px);
+  line-height: 1.32;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+@keyframes melliFade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.melli-page .join {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 36px;
+  font-weight: 600;
+  font-size: clamp(15px, 1.4vw, 19px);
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+}
+
+.melli-page .join i {
+  width: 25px;
+  height: 32px;
+  border: 1.8px solid currentColor;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  transition: transform 0.35s ease, background 0.35s;
+}
+
+.melli-page .join i svg {
+  width: 9px;
+  height: 9px;
+}
+
+.melli-page .join:hover i {
+  transform: translateX(4px);
+}
+
+.melli-page .hero .flower--cosmos {
+  width: clamp(420px, 64vw, 1100px);
+  left: -14vw;
+  bottom: -24vw;
+  transform-origin: 60% 40%;
+  filter: drop-shadow(0 30px 45px rgba(185, 111, 135, 0.28));
+  z-index: 1;
+}
+
+/* SHARED TYPOGRAPHY */
+.melli-page .num {
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  font-size: clamp(110px, 15vw, 250px);
+  color: var(--num);
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.melli-page .title {
+  font-weight: 700;
+  font-size: clamp(30px, 3.4vw, 56px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.melli-page .copy {
+  margin-top: 22px;
+  font-size: clamp(13.5px, 1.05vw, 16px);
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 440px;
+}
+
+.melli-page .reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s ease, transform 1.1s cubic-bezier(0.2, 0.8, 0.15, 1);
+}
+
+.melli-page .in .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.melli-page .in .reveal.d1 {
+  transition-delay: 0.1s;
+}
+
+.melli-page .in .reveal.d2 {
+  transition-delay: 0.22s;
+}
+
+.melli-page .in .reveal.d3 {
+  transition-delay: 0.34s;
+}
+
+/* SECTION 01 */
+.melli-page .s1 {
+  background: linear-gradient(180deg, #FFF1F4 0%, #FBE8EE 100%);
+  z-index: 2;
+}
+
+.melli-page .s1 .flower--hang {
+  width: clamp(380px, 46vw, 820px);
+  left: -9vw;
+  top: -14vw;
+  transform-origin: 50% 0%;
+  filter: drop-shadow(0 20px 35px rgba(136, 104, 117, 0.22));
+}
+
+.melli-page .s1 .num {
+  position: absolute;
+  left: 6vw;
+  top: 50vh;
+}
+
+.melli-page .s1 .text {
+  position: absolute;
+  left: 50vw;
+  top: 41vh;
+  width: min(520px, 44vw);
+}
+
+/* SECTION 02 (dark / dusty rose) */
+.melli-page .s2 {
+  background: var(--dusty-rose) url("https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261017_132814_c3d2b090-c27d-49d1-8107-66d0cfa216c2.png") center/cover no-repeat;
+  color: #fff;
+  z-index: 3;
+}
+
+.melli-page .s2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(80, 28, 48, 0.55) 0%, rgba(80, 28, 48, 0.1) 55%);
+}
+
+.melli-page .s2 .num {
+  color: var(--num-dark);
+  position: relative;
+}
+
+.melli-page .s2 .text {
+  position: absolute;
+  left: 6vw;
+  top: 22vh;
+  width: min(500px, 46vw);
+}
+
+.melli-page .s2 .title {
+  margin-top: 22px;
+}
+
+.melli-page .s2 .copy {
+  color: rgba(255, 240, 245, 0.88);
+}
+
+.melli-page .s2 .flower--iris {
+  width: clamp(380px, 46vw, 820px);
+  right: -8vw;
+  bottom: -20vw;
+  transform-origin: 30% 30%;
+  filter: drop-shadow(0 40px 60px rgba(60, 20, 35, 0.5));
+  z-index: 2;
+}
+
+/* SECTION 03 */
+.melli-page .s3 {
+  background: linear-gradient(180deg, #FBE8EE 0%, #F6DCE5 100%);
+  z-index: 1;
+}
+
+.melli-page .s3 .flower--passion {
+  width: clamp(360px, 42vw, 760px);
+  left: -10vw;
+  top: 6vh;
+  transform-origin: 40% 50%;
+  filter: drop-shadow(0 25px 40px rgba(185, 111, 135, 0.22));
+}
+
+.melli-page .s3 .text {
+  position: absolute;
+  left: 54vw;
+  top: 26vh;
+  width: min(500px, 40vw);
+}
+
+.melli-page .s3 .title {
+  margin-top: 24px;
+}
+
+/* FOOTER */
+.melli-page .foot {
+  background: #F6DCE5;
+  height: 100vh;
+  z-index: 1;
+}
+
+.melli-page .foot .brand {
+  position: absolute;
+  left: var(--pad);
+  bottom: 80px;
+}
+
+.melli-page .foot .brand strong {
+  display: block;
+  font-size: clamp(30px, 3vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: 'Poppins', system-ui, sans-serif;
+}
+
+.melli-page .foot .brand span {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.melli-page .foot .cols {
+  position: absolute;
+  right: calc(var(--pad) + 120px);
+  bottom: 80px;
+  display: flex;
+  gap: 64px;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+.melli-page .foot .cols a {
+  display: block;
+  line-height: 1.9;
+  transition: color 0.2s;
+}
+
+.melli-page .foot .cols a:hover {
+  color: var(--violet);
+}
+
+.melli-page .foot .cta {
+  position: absolute;
+  left: 50%;
+  top: 18vh;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.melli-page .foot .cta .title {
+  font-size: clamp(30px, 3.6vw, 60px);
+}
+
+/* LOADER */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--lilac);
+  display: grid;
+  place-items: center;
+  transition: opacity 0.8s ease, visibility 0.8s;
+}
+
+.loader.done {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader svg {
+  width: 46px;
+  height: 46px;
+  animation: melliSpin 1.6s linear infinite;
+}
+
+@keyframes melliSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Subtle sample shelf button in footer / side for dev / testing */
+.melli-sample-btn {
+  font-size: 13px;
+  color: var(--muted);
+  background: none;
+  border: 1px dashed var(--muted);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.melli-sample-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* MOBILE */
+@media (max-width: 760px) {
+  .melli-page .nav__links {
+    display: none;
+  }
+  .melli-page .hero h1 {
+    top: 14vh;
+  }
+  .melli-page .hero__side {
+    top: auto;
+    bottom: 14vh;
+    right: 18px;
+    width: 68vw;
+  }
+  .melli-page .hero .flower--cosmos {
+    width: 110vw;
+    left: -38vw;
+    bottom: -55vw;
+  }
+  .melli-page .s1 .num {
+    top: 16vh;
+    left: auto;
+    right: 6vw;
+  }
+  .melli-page .s1 .text,
+  .melli-page .s3 .text {
+    left: 18px;
+    right: 18px;
+    width: auto;
+    top: auto;
+    bottom: 10vh;
+  }
+  .melli-page .s2 .text {
+    left: 18px;
+    right: 18px;
+    width: auto;
+    top: 14vh;
+  }
+  .melli-page .s3 .flower--passion {
+    width: 90vw;
+  }
+  .melli-page .foot .cols {
+    right: 18px;
+    bottom: 150px;
+    gap: 30px;
+  }
+  .melli-page .foot .brand {
+    bottom: 150px;
+  }
+}
+

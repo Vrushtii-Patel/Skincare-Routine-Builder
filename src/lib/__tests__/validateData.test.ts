@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { validateReferenceData } from '../validateData';
 import { loadReferenceData } from '../loadData';
-import { ReferenceData } from '../../types';
+import { ReferenceData, ConflictRule } from '../../types';
 
 describe('Data Validation Suite (validateData)', () => {
   it('passes on the real reference data files', () => {
@@ -54,7 +54,7 @@ describe('Data Validation Suite (validateData)', () => {
 
   it('detects hard enforcement rules (forbidden in v1 dataset)', () => {
     const data = getBaseData();
-    data.rules[0].enforcement = 'hard' as any;
+    data.rules[0].enforcement = 'hard' as unknown as ConflictRule['enforcement'];
     const errors = validateReferenceData(data);
     expect(errors.some((e) => e.includes('hard rules not allowed in this dataset'))).toBe(true);
   });

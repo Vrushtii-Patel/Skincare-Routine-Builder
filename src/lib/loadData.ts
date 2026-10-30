@@ -18,13 +18,13 @@ export function loadReferenceData(): ReferenceData {
   }
 
   const rawData: ReferenceData = {
-    ingredients: (ingredientsJson as any).ingredients,
-    tags: (ingredientsJson as any).tags,
-    rules: (conflictsJson as any).rules,
-    reviewedNoRule: (conflictsJson as any).reviewedNoRule,
-    frequencies: (frequenciesJson as any).ingredients,
-    scheduling: (frequenciesJson as any).scheduling,
-    sources: (sourcesJson as any).sources,
+    ingredients: (ingredientsJson as unknown as { ingredients: ReferenceData['ingredients'] }).ingredients,
+    tags: (ingredientsJson as unknown as { tags: ReferenceData['tags'] }).tags,
+    rules: (conflictsJson as unknown as { rules: ReferenceData['rules'] }).rules,
+    reviewedNoRule: (conflictsJson as unknown as { reviewedNoRule: ReferenceData['reviewedNoRule'] }).reviewedNoRule,
+    frequencies: (frequenciesJson as unknown as { ingredients: ReferenceData['frequencies'] }).ingredients,
+    scheduling: (frequenciesJson as unknown as { scheduling: ReferenceData['scheduling'] }).scheduling,
+    sources: (sourcesJson as unknown as { sources: ReferenceData['sources'] }).sources,
   };
 
   const validationErrors = validateReferenceData(rawData);

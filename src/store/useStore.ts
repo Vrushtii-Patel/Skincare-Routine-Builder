@@ -249,8 +249,9 @@ export const useStore = create<AppState>()(
           }));
 
           return { success: true, message: 'Data imported successfully.' };
-        } catch (err: any) {
-          return { success: false, message: `Failed to import data: ${err.message}` };
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          return { success: false, message: `Failed to import data: ${message}` };
         }
       },
 
@@ -291,13 +292,13 @@ export const useStore = create<AppState>()(
         products: state.products,
         checkIns: state.checkIns,
       }),
-      migrate: (persistedState: any, version: number) => {
+      migrate: (persistedState: unknown, version: number) => {
         if (version === 0) {
           // Schema 0 -> 1 migration if needed
           return {
-            ...persistedState,
+            ...(persistedState as Record<string, unknown>),
             version: CURRENT_SCHEMA_VERSION,
-          };
+          } as unknown as AppState;
         }
         return persistedState as AppState;
       },

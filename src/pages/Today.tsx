@@ -303,17 +303,17 @@ export const Today: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-          {[
+          {([
             { id: 'great', label: 'Radiant', emoji: '✨' },
             { id: 'good', label: 'Balanced', emoji: '🌿' },
             { id: 'neutral', label: 'Normal', emoji: '☁️' },
             { id: 'tight', label: 'Dry / Tight', emoji: '💧' },
             { id: 'irritated', label: 'Irritated', emoji: '⚠️' },
-          ].map((feel) => (
+          ] as const).map((feel) => (
             <button
               key={feel.id}
               type="button"
-              onClick={() => handleFeelSelect(feel.id as any)}
+              onClick={() => handleFeelSelect(feel.id)}
               className={`p-3 rounded-2xl border text-center transition-all ${
                 selectedFeel === feel.id
                   ? 'bg-rose-100/80 border-rose-400 text-rose-950 font-semibold shadow-2xs'

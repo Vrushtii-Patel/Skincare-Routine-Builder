@@ -265,15 +265,15 @@ export const Quiz: React.FC = () => {
                 Your familiarity with active ingredients:
               </label>
               <div className="grid grid-cols-3 gap-2.5">
-                {[
+                {([
                   { id: 'beginner', label: 'Beginner', desc: 'New to acids & retinoids' },
                   { id: 'intermediate', label: 'Familiar', desc: 'Uses actives 2-3x/week' },
                   { id: 'experienced', label: 'Experienced', desc: 'Established tolerance' },
-                ].map((exp) => (
+                ] as const).map((exp) => (
                   <button
                     key={exp.id}
                     type="button"
-                    onClick={() => setExperience(exp.id as any)}
+                    onClick={() => setExperience(exp.id)}
                     className={`p-3 rounded-2xl text-center border transition-all ${
                       experience === exp.id
                         ? 'bg-rose-50 border-rose-300 text-rose-950 font-medium'
