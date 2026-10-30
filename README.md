@@ -15,8 +15,6 @@ An editorial, evidence-informed web application and daily skincare journal desig
 - **Live Application:** [https://skincare-routine-builder-jet.vercel.app](https://skincare-routine-builder-jet.vercel.app)
 - **Instant Demo:** [https://skincare-routine-builder-jet.vercel.app/welcome?demo=1](https://skincare-routine-builder-jet.vercel.app/welcome?demo=1)
 - **Source Repository:** [https://github.com/Vrushtii-Patel/Skincare-Routine-Builder](https://github.com/Vrushtii-Patel/Skincare-Routine-Builder)
-- **Instant Demo:** Launch with a pre-configured sample shelf and routines by visiting: [https://skincare-routine-builder-jet.vercel.app/welcome?demo=1](https://skincare-routine-builder-jet.vercel.app/welcome?demo=1).
-
 ---
 
 ## 📸 Application Screenshots
