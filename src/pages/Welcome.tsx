@@ -451,8 +451,8 @@ export const Welcome: React.FC = () => {
             className="flower flower--cosmos"
             data-speed="-0.25"
             data-rot="8"
-            src="/assets/skincare/damask-rose.png"
-            alt="Hydrating Damask Rose botanical extract"
+            src="/assets/skincare/cream-swirl.png"
+            alt="Silky whipped moisturizing cream swirl with dewy hydration"
           />
 
           <div className="hero__side">
@@ -484,8 +484,8 @@ export const Welcome: React.FC = () => {
             className="flower flower--hang"
             data-speed="0.35"
             data-rot="-6"
-            src="/assets/skincare/cica-sprig.png"
-            alt="Centella Asiatica (Cica) soothing botanical leaves"
+            src="/assets/skincare/moisture-drops.png"
+            alt="Crystalline hydrating essence droplets cascading with moisture"
           />
           <div className="num reveal">01</div>
           <div className="text">
@@ -519,8 +519,8 @@ export const Welcome: React.FC = () => {
             className="flower flower--iris"
             data-speed="-0.3"
             data-rot="10"
-            src="/assets/skincare/rose-petal.png"
-            alt="Translucent dewy Damask rose petal"
+            src="/assets/skincare/peptide-swatch.png"
+            alt="Luminous translucent rose peptide gel-cream swatch"
           />
         </section>
 
@@ -530,8 +530,8 @@ export const Welcome: React.FC = () => {
             className="flower flower--passion"
             data-speed="-0.2"
             data-rot="-10"
-            src="/assets/skincare/aloe-chamomile.png"
-            alt="Hydrating Aloe Vera and calming Chamomile botanical"
+            src="/assets/skincare/hydration-spheres.png"
+            alt="Sculptural hydrating water spheres and hyaluronic acid gel cluster"
           />
           <div className="text">
             <div className="num reveal">03</div>

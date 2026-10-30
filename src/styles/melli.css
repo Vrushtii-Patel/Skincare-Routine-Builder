@@ -291,11 +291,11 @@ body.loaded .hero__side {
 }
 
 .melli-page .hero .flower--cosmos {
-  width: clamp(420px, 64vw, 1100px);
-  left: -14vw;
-  bottom: -24vw;
+  width: clamp(380px, 50vw, 860px);
+  left: -10vw;
+  bottom: -18vw;
   transform-origin: 60% 40%;
-  filter: drop-shadow(0 30px 45px rgba(185, 111, 135, 0.28));
+  filter: drop-shadow(0 25px 40px rgba(185, 111, 135, 0.22));
   z-index: 1;
 }
 
@@ -355,11 +355,11 @@ body.loaded .hero__side {
 }
 
 .melli-page .s1 .flower--hang {
-  width: clamp(380px, 46vw, 820px);
-  left: -9vw;
-  top: -14vw;
+  width: clamp(320px, 36vw, 680px);
+  left: -6vw;
+  top: -8vw;
   transform-origin: 50% 0%;
-  filter: drop-shadow(0 20px 35px rgba(136, 104, 117, 0.22));
+  filter: drop-shadow(0 20px 35px rgba(136, 104, 117, 0.18));
 }
 
 .melli-page .s1 .num {
@@ -410,11 +410,11 @@ body.loaded .hero__side {
 }
 
 .melli-page .s2 .flower--iris {
-  width: clamp(380px, 46vw, 820px);
-  right: -8vw;
-  bottom: -20vw;
+  width: clamp(360px, 44vw, 780px);
+  right: -6vw;
+  bottom: -16vw;
   transform-origin: 30% 30%;
-  filter: drop-shadow(0 40px 60px rgba(60, 20, 35, 0.5));
+  filter: drop-shadow(0 35px 55px rgba(60, 20, 35, 0.45));
   z-index: 2;
 }
 
@@ -425,11 +425,11 @@ body.loaded .hero__side {
 }
 
 .melli-page .s3 .flower--passion {
-  width: clamp(360px, 42vw, 760px);
-  left: -10vw;
-  top: 6vh;
+  width: clamp(340px, 38vw, 720px);
+  left: -8vw;
+  top: 8vh;
   transform-origin: 40% 50%;
-  filter: drop-shadow(0 25px 40px rgba(185, 111, 135, 0.22));
+  filter: drop-shadow(0 25px 40px rgba(185, 111, 135, 0.20));
 }
 
 .melli-page .s3 .text {
