@@ -80,7 +80,16 @@ describe('UI Components & Accessibility', () => {
     );
 
     expect(screen.getByText('Start My Skin Journey')).toBeInTheDocument();
-    expect(screen.getByText('Explore with Sample Shelf')).toBeInTheDocument();
-    expect(screen.getByText(/skincare ritual/i)).toBeInTheDocument();
+    expect(screen.getByText('Personalised skincare starts here.')).toBeInTheDocument();
+    expect(screen.getAllByText(/skincare ritual/i).length).toBeGreaterThanOrEqual(1);
+
+    // The Science section is rendered
+    expect(screen.getByText('The Science Behind Every Ritual')).toBeInTheDocument();
+
+    // Verify removed elements are completely absent
+    expect(screen.queryByText(/Explore with Sample Shelf/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Signed in as/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^My Routine$/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Sign In$/i })).not.toBeInTheDocument();
   });
 });

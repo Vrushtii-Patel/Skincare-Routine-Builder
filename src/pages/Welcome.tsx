@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { useStore } from '../store/useStore';
@@ -17,16 +17,18 @@ interface Keyframe {
 }
 
 const K_DESKTOP: Keyframe[] = [
-  // 1. Hero: Repositioned to the right and lowered so headline is 100% legible and completely un-obscured
-  { x: 0.28, y: -0.68, s: 0.74, yaw: 140, pitch: 6,  roll: -4 },
+  // 1. Hero: Centered lower sweet spot, completely clear of both headline and right description
+  { x: 0.04, y: -0.72, s: 0.72, yaw: 140, pitch: 6,  roll: -4 },
   // 2. Section 01 (Needs): Left-centre behind/alongside cica leaves, clear of right-hand text
   { x: -0.42, y: -0.06, s: 0.90, yaw: 125, pitch: 8,  roll:  5 },
   // 3. Section 02 (Ritual): Dramatic visual towards the right on dark background, text on left
   { x: 0.38, y: -0.16, s: 1.00, yaw: 40,  pitch: -4, roll: -6 },
   // 4. Section 03 (Step Count): Towards left with aloe & chamomile, clear text area on right
   { x: -0.40, y: -0.10, s: 0.90, yaw: 150, pitch: 6,  roll:  4 },
-  // 5. Final CTA: Scaled down, positioned beside closing headline and CTA button
-  { x: 0.44, y:  0.02, s: 0.40, yaw: 110, pitch: 4,  roll:  0 },
+  // 5. The Science: Scaled down very small, centered gracefully between cards to maintain continuous animation
+  { x: 0.00, y: -0.05, s: 0.40, yaw: 125, pitch: 5,  roll: -3 },
+  // 6. Final CTA: Prominent luxury bottle on right side beside closing headline and CTA
+  { x: 0.40, y: -0.08, s: 0.86, yaw: 115, pitch: 6,  roll: -2 },
 ];
 
 const K_MOBILE: Keyframe[] = [
@@ -34,7 +36,8 @@ const K_MOBILE: Keyframe[] = [
   { x: -0.24, y: 0.10, s: 0.68, yaw: 125, pitch: 8,  roll:  5 },
   { x: 0.24, y: -0.12, s: 0.72, yaw: 40,  pitch: -4, roll: -6 },
   { x: -0.24, y: 0.10, s: 0.66, yaw: 150, pitch: 6,  roll:  4 },
-  { x: 0.26, y:  0.18, s: 0.42, yaw: 110, pitch: 4,  roll:  0 },
+  { x: 0.00, y:  0.02, s: 0.34, yaw: 120, pitch: 5,  roll: -2 },
+  { x: 0.00, y:  0.10, s: 0.62, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 function ease(t: number): number {
@@ -81,7 +84,6 @@ function targetAt(p: number, isMobile: boolean) {
 export const Welcome: React.FC = () => {
   const navigate = useNavigate();
   const isOnboarded = useStore((state) => state.profile.isOnboarded);
-  const loadSampleData = useStore((state) => state.loadSampleData);
 
   const [webGlFailed, setWebGlFailed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -96,19 +98,7 @@ export const Welcome: React.FC = () => {
     }
   };
 
-  const handleDemo = () => {
-    loadSampleData();
-    navigate('/today');
-  };
-
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('demo') === '1' || params.get('demo') === 'true') {
-      loadSampleData();
-      navigate('/today');
-      return;
-    }
-
     // 1. Initial Loader Setup & Reveal
     const loaderTimer = setTimeout(() => {
       if (loaderRef.current) {
@@ -135,15 +125,60 @@ export const Welcome: React.FC = () => {
         el.style.transform = `translate3d(0, ${p * speed * vh}px, 0) rotate(${p * rot}deg)`;
       });
 
-      // Nav Theme: check section crossing top 6% of viewport
-      let activeTheme = 'light';
+      // Smooth exit fade: as section content scrolls past the top, fade it out gracefully
+      // to avoid headings passing underneath the navbar or clipping against boundaries
       sections?.forEach((sec) => {
         const rect = sec.getBoundingClientRect();
-        if (rect.top <= vh * 0.06 && rect.bottom > vh * 0.06) {
+        const textBlock = sec.querySelector<HTMLElement>('.text, .cta, .hero__side');
+        const heading = sec.querySelector<HTMLElement>('h1');
+        const numBlock = sec.querySelector<HTMLElement>('.num');
+
+        if (rect.top < 0 && rect.bottom > 0) {
+          const exitProgress = Math.min(1, Math.max(0, -rect.top / (vh * 0.55)));
+          const opacity = `${Math.max(0, 1 - exitProgress)}`;
+          if (textBlock) textBlock.style.opacity = opacity;
+          if (heading) heading.style.opacity = opacity;
+          if (numBlock) numBlock.style.opacity = opacity;
+        } else if (rect.top >= 0) {
+          if (textBlock && textBlock.style.opacity !== '') textBlock.style.opacity = '';
+          if (heading && heading.style.opacity !== '') heading.style.opacity = '';
+          if (numBlock && numBlock.style.opacity !== '') numBlock.style.opacity = '';
+        }
+      });
+
+      // Nav Theme & Active Section: check section crossing viewport midpoint
+      let activeTheme = 'light';
+      let activeSectionId = 'top';
+      sections?.forEach((sec) => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= vh * 0.45 && rect.bottom > vh * 0.45) {
+          activeSectionId = sec.id;
           activeTheme = sec.getAttribute('data-theme') || 'light';
         }
       });
+      document.body.dataset.activeSection = activeSectionId;
       document.body.classList.toggle('on-dark', activeTheme === 'dark');
+      document.body.classList.toggle('scrolled', window.scrollY > 20);
+
+      // Active Nav Link: highlight link corresponding to the section in view
+      const navLinks = mainRef.current?.ownerDocument.querySelectorAll<HTMLAnchorElement>('.melli-page .nav__links a');
+      navLinks?.forEach((link) => {
+        const href = link.getAttribute('href');
+        if (!href || !href.startsWith('#')) return;
+        const target = document.querySelector<HTMLElement>(href);
+        if (target) {
+          const rect = target.getBoundingClientRect();
+          const inView = rect.top <= vh * 0.45 && rect.bottom > vh * 0.2;
+          link.classList.toggle('active', inView);
+        }
+      });
+
+      // Foot section active state
+      const footSec = document.querySelector<HTMLElement>('.melli-page .foot');
+      if (footSec) {
+        const footRect = footSec.getBoundingClientRect();
+        document.body.classList.toggle('at-foot', footRect.top <= vh * 0.45);
+      }
     };
 
     window.addEventListener('scroll', updateParallax, { passive: true });
@@ -353,7 +388,7 @@ export const Welcome: React.FC = () => {
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('resize', onResize);
         observer?.disconnect();
-        document.body.classList.remove('loaded', 'on-dark');
+        document.body.classList.remove('loaded', 'on-dark', 'scrolled', 'at-foot');
         if (renderer) {
           renderer.dispose();
         }
@@ -367,7 +402,7 @@ export const Welcome: React.FC = () => {
         clearTimeout(loaderTimer);
         window.removeEventListener('scroll', updateParallax);
         observer?.disconnect();
-        document.body.classList.remove('loaded', 'on-dark');
+        document.body.classList.remove('loaded', 'on-dark', 'scrolled', 'at-foot');
       };
     }
   }, []);
@@ -389,7 +424,7 @@ export const Welcome: React.FC = () => {
           </svg>
         </a>
         <div className="nav__links">
-          <a href="#about">The Science</a>
+          <a href="#science">The Science</a>
           <a href="#contact">Get in Touch</a>
         </div>
         <button onClick={handleStart} className="nav__cta" aria-label="Build My Routine">
@@ -403,8 +438,7 @@ export const Welcome: React.FC = () => {
       {/* Fallback Serum Bottle for environments without WebGL */}
       {webGlFailed && (
         <div
-          className="fixed inset-0 z-20 pointer-events-none flex items-center justify-center"
-          style={{ transform: 'translate(18vw, 15vh)' }}
+          className="fixed inset-0 z-20 pointer-events-none flex items-center justify-center fallback-bottle-container"
         >
           <div className="w-[220px] md:w-[260px] filter drop-shadow-2xl">
             <svg viewBox="0 0 200 400" className="w-full h-auto" fill="none">
@@ -456,24 +490,32 @@ export const Welcome: React.FC = () => {
           />
 
           <div className="hero__side">
-            <p>Master your personal daily glow with evidence-backed routines crafted for your skin.</p>
-            <button onClick={handleStart} className="join" aria-label="Build My Routine">
-              <i>
-                <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <path d="M3 1l4 4-4 4" />
-                </svg>
-              </i>
-              Build My Routine
-              <span className="sr-only">Start My Skin Journey</span>
-            </button>
-            <div>
+            <p className="hero__tagline">Your skin is unique. Your routine should be too.</p>
+            <p className="hero__desc">
+              Discover your skin type, understand your skincare needs and build a personalised daily routine with products suited to you.
+            </p>
+            <div className="hero__cta-group">
               <button
-                onClick={handleDemo}
-                className="melli-sample-btn"
-                title="Load sample skincare routine"
+                onClick={handleStart}
+                className="hero__cta-btn"
+                aria-label="Build My Skincare Routine"
               >
-                Explore with Sample Shelf
+                <span>Build My Skincare Routine</span>
+                <svg
+                  className="cta-arrow"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+                <span className="sr-only">Start My Skin Journey</span>
               </button>
+              <p className="hero__cta-sub">Personalised skincare starts here.</p>
             </div>
           </div>
         </section>
@@ -487,18 +529,52 @@ export const Welcome: React.FC = () => {
             src="/assets/skincare/moisture-drops.png"
             alt="Crystalline hydrating essence droplets cascading with moisture"
           />
-          <div className="num reveal">01</div>
           <div className="text">
-            <h2 className="title reveal d1">
-              Understand Your
-              <br />
-              Skin's True
-              <br />
-              Needs
+            <div className="num reveal">01</div>
+            <h2 className="section-heading reveal d1">
+              Understand Your Skin's True Needs
             </h2>
-            <p className="copy reveal d2">
-              Every formula is crafted with dermatologist-approved active pairings to target your concerns without irritation. Whether you're balancing breakouts or restoring your moisture barrier, your ritual adapts to you.
+            <p className="section-explanation reveal d2">
+              Uncover what your skin actually requires with an assessment that evaluates your hydration levels, sensitivity triggers, and barrier resilience.
             </p>
+            <ul className="section-benefits reveal d2">
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Skin type identification (oily, dry, combination, sensitive)</span>
+              </li>
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Targeted analysis of your skin concerns and barrier sensitivities</span>
+              </li>
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>A personalised skin profile built to guide your routine</span>
+              </li>
+            </ul>
+            <div className="section-preview s1-preview reveal d3">
+              <div className="preview-header">
+                <span className="preview-title">Skin Profile Analysis</span>
+                <span className="preview-badge-status">Tailored</span>
+              </div>
+              <div className="preview-chips">
+                <span className="preview-chip">Type: Combination</span>
+                <span className="preview-chip">Focus: Barrier Repair</span>
+                <span className="preview-chip">Sensitivity: Moderate</span>
+                <span className="preview-chip">Actives: Niacinamide & Peptides</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -506,14 +582,66 @@ export const Welcome: React.FC = () => {
         <section className="s2" id="access" data-theme="dark">
           <div className="text">
             <div className="num reveal">02</div>
-            <h2 className="title reveal d1">
-              Build Your Daily
-              <br />
-              Ritual
+            <h2 className="section-heading reveal d1">
+              Build Your Daily Ritual
             </h2>
-            <p className="copy reveal d2">
-              Get personalized day and night routines designed around your skin barrier. Unlock seamless ingredient compatibility checks, frequency schedules, and habit tracking.
+            <p className="section-explanation reveal d2">
+              Get a skincare routine designed around your individual skin profile, primary concerns, and daily lifestyle preferences.
             </p>
+            <ul className="section-benefits reveal d2">
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Morning (AM) and evening (PM) routines matched to your day</span>
+              </li>
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Personalised product and active ingredient suggestions</span>
+              </li>
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Automated ingredient conflict checks to prevent irritation</span>
+              </li>
+            </ul>
+            <div className="section-preview s2-preview reveal d3">
+              <div className="preview-header">
+                <span className="preview-title">Daily Ritual Architecture</span>
+                <span className="preview-badge-status">AM / PM</span>
+              </div>
+              <div className="preview-routine-grid">
+                <div className="preview-routine-row">
+                  <span className="routine-tag">AM</span>
+                  <div className="routine-flow">
+                    <span>Gentle Cleanser</span>
+                    <span className="routine-arrow">→</span>
+                    <span>Niacinamide Serum</span>
+                    <span className="routine-arrow">→</span>
+                    <span>SPF 50+</span>
+                  </div>
+                </div>
+                <div className="preview-routine-row">
+                  <span className="routine-tag">PM</span>
+                  <div className="routine-flow">
+                    <span>Double Cleanse</span>
+                    <span className="routine-arrow">→</span>
+                    <span>Peptide Complex</span>
+                    <span className="routine-arrow">→</span>
+                    <span>Barrier Seal</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <img
             className="flower flower--iris"
@@ -535,46 +663,263 @@ export const Welcome: React.FC = () => {
           />
           <div className="text">
             <div className="num reveal">03</div>
-            <h2 className="title reveal d1">
-              Make Every
-              <br />
-              Step Count!
+            <h2 className="section-heading reveal d1">
+              Make Every Step Count
             </h2>
-            <p className="copy reveal d2">
-              Become part of a mindful community of skincare lovers. Track real progress, get notes from dermatology references, and see your natural glow flourish in vivid harmony.
+            <p className="section-explanation reveal d2">
+              Follow clear application order, recommended usage frequencies, and evidence-backed guidance designed to protect your skin barrier.
             </p>
+            <ul className="section-benefits reveal d2">
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Guidance on product application order from thinnest to richest</span>
+              </li>
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Weekly frequency schedules for active exfoliants and retinoids</span>
+              </li>
+              <li className="benefit-item">
+                <span className="benefit-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3.5 8.5l3 3 6-6" />
+                  </svg>
+                </span>
+                <span>Daily routine logging with streak tracking to build habits</span>
+              </li>
+            </ul>
+            <div className="section-preview s3-preview reveal d3">
+              <div className="preview-header">
+                <span className="preview-title">Application Order & Guidance</span>
+                <span className="preview-badge-status">Step-by-Step</span>
+              </div>
+              <div className="step-order-grid">
+                <div className="step-order-card">
+                  <span className="step-order-badge">Step 1</span>
+                  <span className="step-order-name">Hydrating Cleanse</span>
+                  <span className="step-order-meta">Daily • AM & PM</span>
+                </div>
+                <div className="step-order-card">
+                  <span className="step-order-badge">Step 2</span>
+                  <span className="step-order-name">Target Treatment</span>
+                  <span className="step-order-meta">3× / wk • Pre-oil</span>
+                </div>
+                <div className="step-order-card">
+                  <span className="step-order-badge">Step 3</span>
+                  <span className="step-order-name">Barrier Seal</span>
+                  <span className="step-order-meta">Daily • Lock-in step</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SKINCARE SCIENCE & CREDIBILITY */}
+        <section className="science-section" id="science" data-theme="light">
+          <div className="science-container">
+            <header className="science-header">
+              <span className="science-eyebrow">Dermatological Methodology</span>
+              <h2 className="science-title">The Science Behind Every Ritual</h2>
+              <p className="science-subtitle">
+                Skin recommendations should be guided by cellular biology and clinical pharmacology, never guesswork. Our matching engine analyzes barrier physiology, molecule compatibility, and verified clinical literature.
+              </p>
+            </header>
+
+            <div className="science-grid">
+              {/* Pillar 1: Skin Type Identification */}
+              <div className="science-card">
+                <div className="science-card__num">01</div>
+                <h3 className="science-card__title">Skin Type Identification</h3>
+                <p className="science-card__desc">
+                  Identified via follicular sebum excretion rates, transepidermal water loss (TEWL), and stratum corneum lipid resilience. This distinguishes true dry barriers from dehydrated, oily, and sensitive states.
+                </p>
+                <div className="science-card__sub">
+                  <span className="science-card__tag">Metric</span>
+                  <span className="science-card__val">TEWL & Sebum Level</span>
+                </div>
+              </div>
+
+              {/* Pillar 2: Concern-Targeted Actives */}
+              <div className="science-card">
+                <div className="science-card__num">02</div>
+                <h3 className="science-card__title">Concern-Driven Actives</h3>
+                <p className="science-card__desc">
+                  Every concern requires specific cellular pathways: keratolytic pore desquamation for acne (salicylic acid), tyrosinase inhibition for discoloration (azelaic acid, vitamin C), and retinoid receptor turnover for aging.
+                </p>
+                <div className="science-card__sub">
+                  <span className="science-card__tag">Mechanism</span>
+                  <span className="science-card__val">Cellular Receptors</span>
+                </div>
+              </div>
+
+              {/* Pillar 3: Clinical Ingredient Selection */}
+              <div className="science-card">
+                <div className="science-card__num">03</div>
+                <h3 className="science-card__title">Rigorous Ingredient Selection</h3>
+                <p className="science-card__desc">
+                  Formulations are vetted against randomized controlled trials (RCTs). We select ingredients with clinically proven therapeutic concentration windows, physiological bio-availability, and barrier tolerance.
+                </p>
+                <div className="science-card__sub">
+                  <span className="science-card__tag">Standard</span>
+                  <span className="science-card__val">Peer-Reviewed Trials</span>
+                </div>
+              </div>
+
+              {/* Pillar 4: Molecular Compatibility */}
+              <div className="science-card">
+                <div className="science-card__num">04</div>
+                <h3 className="science-card__title">Molecular Compatibility</h3>
+                <p className="science-card__desc">
+                  Product compatibility is vital: acidic actives (pH 3.0–3.8) destabilize neutral enzymes, while combining multiple strong keratolytics strips the acid mantle and compromises stratum corneum barrier function.
+                </p>
+                <div className="science-card__sub">
+                  <span className="science-card__tag">Biochemistry</span>
+                  <span className="science-card__val">Acid Mantle (pH 4.5–5.5)</span>
+                </div>
+              </div>
+
+              {/* Pillar 5: Algorithmic Conflict Engine */}
+              <div className="science-card science-card--wide">
+                <div className="science-card__num">05</div>
+                <div className="science-card__content">
+                  <h3 className="science-card__title">How We Prevent Harmful Product Conflicts</h3>
+                  <p className="science-card__desc">
+                    Our pure-logic rules engine evaluates your product shelf against 3 conflict tiers (irritation cascade, chemical destabilization, and duplicate actives). Conflicting actives are safely organized through:
+                  </p>
+                  <ul className="science-card__points">
+                    <li>
+                      <strong>AM vs. PM Separation:</strong> Antioxidants like Vitamin C are scheduled for morning UV defence, while photosensitizing Retinoids and exfoliating acids are shifted to nighttime repair.
+                    </li>
+                    <li>
+                      <strong>Alternating Night Cycles:</strong> Strong exfoliants (AHA/BHA) and retinoids never layer together; they alternate across designated nights.
+                    </li>
+                    <li>
+                      <strong>Rest & Recovery Evenings:</strong> Incorporates barrier-first recovery nights with ceramides and centella to regenerate the stratum corneum.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Dermatological Authority & Substantiation Banner */}
+            <div className="science-credibility">
+              <div className="science-credibility__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+              </div>
+              <div className="science-credibility__body">
+                <h4 className="science-credibility__title">Substantiated by Published Clinical Practice Guidelines</h4>
+                <p className="science-credibility__text">
+                  Safety boundaries and compatibility logic are calibrated to clinical literature published by the <strong>American Academy of Dermatology (AAD)</strong> and the <strong>American Academy of Family Physicians (AAFP)</strong>. This includes first-line acne combination protocols, slow retinoid acclimation regimens, and mandatory broad-spectrum SPF 30+ UV protection.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* FOOTER */}
         <section className="foot" id="contact" data-theme="light">
-          <div className="cta">
-            <h2 className="title reveal">Ready to make skincare yours?</h2>
-            <button onClick={handleStart} className="join reveal d1" aria-label="Build My Routine">
-              <i>
-                <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <path d="M3 1l4 4-4 4" />
+          {/* Top CTA Block */}
+          <div className="foot__hero">
+            <div className="cta">
+              <h2 className="title reveal">Your skin deserves a routine of its own.</h2>
+              <p className="cta__sub reveal d1">
+                Start understanding your skin and build a routine that works with it.
+              </p>
+              <button
+                onClick={handleStart}
+                className="foot__cta-btn reveal d2"
+                aria-label="Build My Routine"
+              >
+                <span>Build My Routine</span>
+                <svg
+                  className="foot__cta-arrow"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
                 </svg>
-              </i>
-              Build My Routine
-            </button>
-          </div>
-
-          <div className="brand reveal">
-            <strong>Skincare Ritual</strong>
-            <span>A mindful routine companion</span>
-          </div>
-
-          <div className="cols reveal d1">
-            <div>
-              <Link to="/routine">Routine Planner</Link>
-              <Link to="/shelf">Product Shelf</Link>
-              <Link to="/compatibility">Compatibility</Link>
+              </button>
             </div>
-            <div>
-              <Link to="/today">Today's Log</Link>
-              <Link to="/week">Weekly View</Link>
-              <Link to="/settings">Settings</Link>
+          </div>
+
+          {/* 4-Column Structured Footer */}
+          <div className="foot__nav reveal d2">
+            <div className="foot__grid">
+              {/* Column 1: Skincare Ritual */}
+              <div className="foot__col foot__col--brand">
+                <div className="brand">
+                  <strong>Skincare Ritual</strong>
+                  <p className="brand__desc">
+                    Evidence-backed routines crafted around your unique skin barrier. Understand your skin type, eliminate active ingredient conflicts, and master your daily ritual.
+                  </p>
+                </div>
+              </div>
+
+              {/* Column 2: Explore */}
+              <div className="foot__col">
+                <h4 className="foot__col-title">Explore</h4>
+                <ul className="foot__links">
+                  <li><a href="#science">The Science</a></li>
+                  <li><a href="#about">Skin Profiling</a></li>
+                  <li><a href="#access">Daily Rituals</a></li>
+                  <li><a href="#steps">Step Cadence</a></li>
+                </ul>
+              </div>
+
+              {/* Column 3: Resources */}
+              <div className="foot__col">
+                <h4 className="foot__col-title">Resources</h4>
+                <ul className="foot__links">
+                  <li><a href="#science">Clinical Guidelines</a></li>
+                  <li><a href="#science">Ingredient Safety</a></li>
+                  <li><a href="#science">Active Compatibility</a></li>
+                  <li>
+                    <button onClick={handleStart} className="foot__link-cta">
+                      Build My Routine →
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 4: Connect */}
+              <div className="foot__col">
+                <h4 className="foot__col-title">Connect</h4>
+                <ul className="foot__links">
+                  <li><a href="mailto:support@skincareritual.app">Contact Support</a></li>
+                  <li><a href="#top">Back to Top</a></li>
+                  <li>
+                    <a
+                      href="https://github.com/vrushti-gates/Skincare-routine-builder"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      GitHub
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Clear Copyright Line */}
+            <div className="foot__bottom">
+              <p className="foot__copyright">
+                © {new Date().getFullYear()} Skincare Ritual. All rights reserved. • Formulated for barrier health.
+              </p>
             </div>
           </div>
         </section>
