@@ -83,8 +83,18 @@ describe('UI Components & Accessibility', () => {
     expect(screen.getByText('Personalised skincare starts here.')).toBeInTheDocument();
     expect(screen.getAllByText(/skincare ritual/i).length).toBeGreaterThanOrEqual(1);
 
+    // How It Works 3-step process in navigation & sections
+    expect(screen.getAllByText(/How It Works/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Tell us about your skin')).toBeInTheDocument();
+    expect(screen.getByText('Discover your recommendations')).toBeInTheDocument();
+    expect(screen.getByText('Get your daily routine')).toBeInTheDocument();
+
     // The Science section is rendered
     expect(screen.getByText('The Science Behind Every Ritual')).toBeInTheDocument();
+
+    // Skincare safety disclaimer is rendered near the bottom
+    expect(screen.getByText(/Skincare recommendations are provided for informational purposes/i)).toBeInTheDocument();
+    expect(screen.getByText(/consult a dermatologist/i)).toBeInTheDocument();
 
     // Verify removed elements are completely absent
     expect(screen.queryByText(/Explore with Sample Shelf/i)).not.toBeInTheDocument();

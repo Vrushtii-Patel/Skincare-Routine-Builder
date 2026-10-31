@@ -119,9 +119,9 @@ export function createSerumBottle(): THREE.Group {
   const glassGeo = new THREE.LatheGeometry(glassPoints, 48);
   const glassMat = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
-    opacity: 0.42,
+    opacity: 0.28,
     transparent: true,
-    roughness: 0.06,
+    roughness: 0.05,
     metalness: 0.08,
     ior: 1.5,
     specularIntensity: 1.0,
@@ -135,7 +135,7 @@ export function createSerumBottle(): THREE.Group {
   glassMesh.renderOrder = 2;
   bottleGroup.add(glassMesh);
 
-  // 3. Inner Liquid (Blush Pink Skincare Serum)
+  // 3. Inner Liquid (Blush Pink Skincare Serum - Ethereal Translucency)
   const liquidPoints: THREE.Vector2[] = [
     new THREE.Vector2(0, -1.08),
     new THREE.Vector2(0.34, -1.08),
@@ -155,7 +155,7 @@ export function createSerumBottle(): THREE.Group {
     roughness: 0.22,
     metalness: 0.06,
     transparent: true,
-    opacity: 0.94,
+    opacity: 0.72,
   });
   const liquidMesh = new THREE.Mesh(liquidGeo, liquidMat);
   liquidMesh.renderOrder = 1;
@@ -165,7 +165,7 @@ export function createSerumBottle(): THREE.Group {
   const pipetteGeo = new THREE.CylinderGeometry(0.055, 0.055, 1.82, 24);
   const pipetteMat = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
-    opacity: 0.78,
+    opacity: 0.60,
     transparent: true,
     roughness: 0.08,
     clearcoat: 0.9,
@@ -190,7 +190,7 @@ export function createSerumBottle(): THREE.Group {
     roughness: 0.2,
     metalness: 0.05,
     transparent: true,
-    opacity: 0.96,
+    opacity: 0.78,
   });
   const innerLiquidMesh = new THREE.Mesh(innerLiquidGeo, innerLiquidMat);
   innerLiquidMesh.position.y = -0.22;
@@ -254,6 +254,8 @@ export function createSerumBottle(): THREE.Group {
     roughness: 0.65,
     metalness: 0.02,
     side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.90,
   });
   const labelMesh = new THREE.Mesh(labelGeo, labelMat);
   labelMesh.position.y = -0.24;

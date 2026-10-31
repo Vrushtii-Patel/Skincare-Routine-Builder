@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Fingerprint, Sparkles, FlaskConical, Layers, Heart, ShieldCheck } from 'lucide-react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { useStore } from '../store/useStore';
@@ -18,26 +19,26 @@ interface Keyframe {
 
 const K_DESKTOP: Keyframe[] = [
   // 1. Hero: Centered lower sweet spot, completely clear of both headline and right description
-  { x: 0.04, y: -0.72, s: 0.72, yaw: 140, pitch: 6,  roll: -4 },
-  // 2. Section 01 (Needs): Left-centre behind/alongside cica leaves, clear of right-hand text
-  { x: -0.42, y: -0.06, s: 0.90, yaw: 125, pitch: 8,  roll:  5 },
-  // 3. Section 02 (Ritual): Dramatic visual towards the right on dark background, text on left
-  { x: 0.38, y: -0.16, s: 1.00, yaw: 40,  pitch: -4, roll: -6 },
-  // 4. Section 03 (Step Count): Towards left with aloe & chamomile, clear text area on right
-  { x: -0.40, y: -0.10, s: 0.90, yaw: 150, pitch: 6,  roll:  4 },
-  // 5. The Science: Scaled down very small, centered gracefully between cards to maintain continuous animation
-  { x: 0.00, y: -0.05, s: 0.40, yaw: 125, pitch: 5,  roll: -3 },
-  // 6. Final CTA: Prominent luxury bottle on right side beside closing headline and CTA
-  { x: 0.40, y: -0.08, s: 0.86, yaw: 115, pitch: 6,  roll: -2 },
+  { x: 0.04, y: -0.72, s: 0.63, yaw: 140, pitch: 6,  roll: -4 },
+  // 2. Step 01 (Tell us about your skin): Left-centre behind/alongside moisture drops, clear of right-hand text
+  { x: -0.42, y: -0.06, s: 0.78, yaw: 125, pitch: 8,  roll:  5 },
+  // 3. Step 02 (Discover your recommendations): Dramatic visual towards the right on dark background, text on left
+  { x: 0.38, y: -0.16, s: 0.86, yaw: 40,  pitch: -4, roll: -6 },
+  // 4. Step 03 (Get your daily routine): Towards left with hydration spheres, clear text area on right
+  { x: -0.40, y: -0.10, s: 0.78, yaw: 150, pitch: 6,  roll:  4 },
+  // 5. The Science: Refined small scale in the central avenue so it never hides text behind
+  { x: 0.00, y: -0.04, s: 0.28, yaw: 125, pitch: 5,  roll: -3 },
+  // 6. Final CTA: Lifted well clear above the footer line and reduced by a cm
+  { x: 0.40, y:  0.38, s: 0.35, yaw: 115, pitch: 6,  roll: -2 },
 ];
 
 const K_MOBILE: Keyframe[] = [
-  { x: 0.18, y: -0.46, s: 0.58, yaw: 140, pitch: 6,  roll: -4 },
-  { x: -0.24, y: 0.10, s: 0.68, yaw: 125, pitch: 8,  roll:  5 },
-  { x: 0.24, y: -0.12, s: 0.72, yaw: 40,  pitch: -4, roll: -6 },
-  { x: -0.24, y: 0.10, s: 0.66, yaw: 150, pitch: 6,  roll:  4 },
-  { x: 0.00, y:  0.02, s: 0.34, yaw: 120, pitch: 5,  roll: -2 },
-  { x: 0.00, y:  0.10, s: 0.62, yaw: 110, pitch: 4,  roll:  0 },
+  { x: 0.18, y: -0.46, s: 0.50, yaw: 140, pitch: 6,  roll: -4 },
+  { x: -0.24, y: 0.10, s: 0.59, yaw: 125, pitch: 8,  roll:  5 },
+  { x: 0.24, y: -0.12, s: 0.63, yaw: 40,  pitch: -4, roll: -6 },
+  { x: -0.24, y: 0.10, s: 0.58, yaw: 150, pitch: 6,  roll:  4 },
+  { x: 0.00, y:  0.02, s: 0.20, yaw: 120, pitch: 5,  roll: -2 },
+  { x: 0.00, y:  0.28, s: 0.28, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 function ease(t: number): number {
@@ -81,6 +82,46 @@ function targetAt(p: number, isMobile: boolean) {
   };
 }
 
+const SECTION_IDS = ['top', 'how-it-works', 'access', 'steps', 'science', 'contact'];
+
+function computeScrollProgress(vh: number): number {
+  if (typeof document === 'undefined') return 0;
+
+  const sections = SECTION_IDS.map((id) => document.getElementById(id));
+  if (!sections[0] || !sections[sections.length - 1]) {
+    return window.scrollY / vh;
+  }
+
+  for (let i = 0; i < sections.length - 1; i++) {
+    const cur = sections[i];
+    const nxt = sections[i + 1];
+    if (!cur || !nxt) continue;
+
+    const rCur = cur.getBoundingClientRect();
+    const rNxt = nxt.getBoundingClientRect();
+
+    if (rNxt.top > 0) {
+      if (i === 4) {
+        // Between science (i=4) and footer (i=5):
+        // Science is a tall multi-row section. Hold at 4 while science content is in view,
+        // and only transition to 5 as the footer approaches the viewport midpoint.
+        const distToFoot = rNxt.top - vh * 0.15;
+        if (distToFoot <= 0) return 5;
+        const footTravel = vh * 0.85;
+        const transProgress = clamp(1 - distToFoot / footTravel, 0, 1);
+        return 4 + transProgress;
+      }
+
+      const span = rNxt.top - rCur.top;
+      if (span <= 0) return i;
+      const frac = clamp(-rCur.top / span, 0, 1);
+      return i + frac;
+    }
+  }
+
+  return sections.length - 1;
+}
+
 export const Welcome: React.FC = () => {
   const navigate = useNavigate();
   const isOnboarded = useStore((state) => state.profile.isOnboarded);
@@ -108,7 +149,7 @@ export const Welcome: React.FC = () => {
     }, 450);
 
     // 2. Parallax and Section Reveal Observers
-    const sections = mainRef.current?.querySelectorAll<HTMLElement>('section');
+    const sections = mainRef.current?.querySelectorAll<HTMLElement>('section, footer');
     const speedElements = mainRef.current?.querySelectorAll<HTMLElement>('[data-speed]');
 
     const updateParallax = () => {
@@ -126,10 +167,12 @@ export const Welcome: React.FC = () => {
       });
 
       // Smooth exit fade: as section content scrolls past the top, fade it out gracefully
-      // to avoid headings passing underneath the navbar or clipping against boundaries
+      // to avoid headings passing underneath the navbar or clipping against boundaries.
+      // The final CTA and footer sections are excluded so their headlines and content remain stable.
       sections?.forEach((sec) => {
+        if (sec.classList.contains('foot') || sec.classList.contains('final-cta')) return;
         const rect = sec.getBoundingClientRect();
-        const textBlock = sec.querySelector<HTMLElement>('.text, .cta, .hero__side');
+        const textBlock = sec.querySelector<HTMLElement>('.text, .hero__side');
         const heading = sec.querySelector<HTMLElement>('h1');
         const numBlock = sec.querySelector<HTMLElement>('.num');
 
@@ -173,11 +216,11 @@ export const Welcome: React.FC = () => {
         }
       });
 
-      // Foot section active state
+      // Foot section active state: triggers as footer approaches the viewport
       const footSec = document.querySelector<HTMLElement>('.melli-page .foot');
       if (footSec) {
         const footRect = footSec.getBoundingClientRect();
-        document.body.classList.toggle('at-foot', footRect.top <= vh * 0.45);
+        document.body.classList.toggle('at-foot', footRect.top <= vh * 0.92);
       }
     };
 
@@ -195,7 +238,7 @@ export const Welcome: React.FC = () => {
             }
           });
         },
-        { threshold: 0.28 }
+        { threshold: 0.12 }
       );
       sections?.forEach((sec) => observer?.observe(sec));
     } else {
@@ -300,6 +343,8 @@ export const Welcome: React.FC = () => {
 
       let prevX = cur.x;
       let prevY = cur.y;
+      let curScienceTurn = 0;
+      let curSciencePitch = 0;
       const clock = new THREE.Clock();
 
       canvas.classList.add('ready');
@@ -328,9 +373,31 @@ export const Welcome: React.FC = () => {
         const t = clock.getElapsedTime();
 
         const vh = window.innerHeight || 1;
-        const p = window.scrollY / vh;
+        const p = computeScrollProgress(vh);
         const mobile = window.innerWidth < 760;
         const target = targetAt(p, mobile);
+
+        // Dynamic Science section turn:
+        // Perform a smooth 3D showcase turn as user scrolls through the cards,
+        // plus an elegant continuous turntable drift when paused so the bottle is never "plainly lying there"
+        const scienceEl = document.getElementById('science');
+        let targetScienceTurn = 0;
+        let targetSciencePitch = 0;
+        if (scienceEl) {
+          const rSci = scienceEl.getBoundingClientRect();
+          if (rSci.top <= vh * 0.90 && rSci.bottom >= vh * 0.10) {
+            const sciHeight = Math.max(rSci.height - vh * 0.4, 1);
+            const sciProgress = clamp((vh * 0.75 - rSci.top) / sciHeight, 0, 1);
+            // 360-degree rotation across the 6 cards as you scroll down
+            const scrollTurn = sciProgress * 360;
+            // Gentle continuous studio showcase rotation when paused
+            const liveIdleTurn = Math.sin(t * 1.5) * 26;
+            targetScienceTurn = scrollTurn + liveIdleTurn;
+            targetSciencePitch = Math.sin(sciProgress * Math.PI * 2) * 8 + Math.cos(t * 1.8) * 4;
+          }
+        }
+        curScienceTurn = lerp(curScienceTurn, targetScienceTurn, 1 - Math.exp(-dt * 3.5));
+        curSciencePitch = lerp(curSciencePitch, targetSciencePitch, 1 - Math.exp(-dt * 3.5));
 
         // Smooth follow
         cur.x = lerp(cur.x, target.x, 1 - Math.exp(-dt * 3.2));
@@ -363,11 +430,24 @@ export const Welcome: React.FC = () => {
           Math.sin(t * 0.9) * 0.15
         );
         flight.scale.setScalar(halfH * 2 * 0.30 * cur.s);
-        flight.rotation.set(0, -((cur.yaw + mouse.sx * 12) * Math.PI) / 180, 0);
+        flight.rotation.set(
+          0,
+          -((cur.yaw + curScienceTurn + mouse.sx * 12) * Math.PI) / 180,
+          0
+        );
 
-        // Banking into turns & pitch when diving
-        const pitch = cur.pitch - clamp(vy * 22, -28, 28) + Math.sin(t * 2.1 + 1) * 3 + mouse.sy * 6;
-        const roll = cur.roll + clamp(vx * 18, -30, 30) + Math.sin(t * 1.7) * 4;
+        // Banking into turns & pitch when diving, plus dynamic science section turn
+        const pitch =
+          cur.pitch +
+          curSciencePitch -
+          clamp(vy * 22, -28, 28) +
+          Math.sin(t * 2.1 + 1) * 3 +
+          mouse.sy * 6;
+        const roll =
+          cur.roll +
+          Math.sin(curScienceTurn * (Math.PI / 180)) * 5 +
+          clamp(vx * 18, -30, 30) +
+          Math.sin(t * 1.7) * 4;
 
         objectRoot.rotation.set(
           (roll * Math.PI) / 180,
@@ -424,6 +504,7 @@ export const Welcome: React.FC = () => {
           </svg>
         </a>
         <div className="nav__links">
+          <a href="#how-it-works">How It Works</a>
           <a href="#science">The Science</a>
           <a href="#contact">Get in Touch</a>
         </div>
@@ -438,7 +519,7 @@ export const Welcome: React.FC = () => {
       {/* Fallback Serum Bottle for environments without WebGL */}
       {webGlFailed && (
         <div
-          className="fixed inset-0 z-20 pointer-events-none flex items-center justify-center fallback-bottle-container"
+          className="fixed inset-0 pointer-events-none flex items-center justify-center fallback-bottle-container"
         >
           <div className="w-[220px] md:w-[260px] filter drop-shadow-2xl">
             <svg viewBox="0 0 200 400" className="w-full h-auto" fill="none">
@@ -448,14 +529,14 @@ export const Welcome: React.FC = () => {
               <rect x="68" y="70" width="64" height="28" rx="4" fill="#E8B8C2" stroke="#D88FA6" strokeWidth="2" />
               <rect x="65" y="94" width="70" height="8" rx="2" fill="#D88FA6" />
               {/* Glass Bottle Body */}
-              <rect x="40" y="102" width="120" height="240" rx="28" fill="#FFF8FA" fillOpacity="0.45" stroke="#E8B8C2" strokeWidth="3" />
+              <rect x="40" y="102" width="120" height="240" rx="28" fill="#FFF8FA" fillOpacity="0.28" stroke="#E8B8C2" strokeWidth="2.5" />
               {/* Serum Liquid inside */}
-              <rect x="46" y="160" width="108" height="174" rx="22" fill="#FA8EA8" fillOpacity="0.92" />
+              <rect x="46" y="160" width="108" height="174" rx="22" fill="#FA8EA8" fillOpacity="0.72" />
               {/* Glass Pipette */}
-              <rect x="94" y="98" width="12" height="210" rx="3" fill="#FFFFFF" fillOpacity="0.75" />
-              <rect x="96" y="170" width="8" height="130" rx="2" fill="#E8587D" fillOpacity="0.95" />
+              <rect x="94" y="98" width="12" height="210" rx="3" fill="#FFFFFF" fillOpacity="0.60" />
+              <rect x="96" y="170" width="8" height="130" rx="2" fill="#E8587D" fillOpacity="0.78" />
               {/* Luxury Label */}
-              <rect x="44" y="175" width="112" height="110" rx="6" fill="#FFF8F9" stroke="#E8B8C2" strokeWidth="1.5" />
+              <rect x="44" y="175" width="112" height="110" rx="6" fill="#FFF8F9" fillOpacity="0.90" stroke="#E8B8C2" strokeWidth="1.5" />
               <text x="100" y="195" textAnchor="middle" fill="#886875" fontSize="7" fontWeight="600" letterSpacing="2">RITUAL</text>
               <text x="100" y="210" textAnchor="middle" fill="#B96F87" fontSize="11" fontWeight="700">N° 01</text>
               <line x1="75" y1="216" x2="125" y2="216" stroke="#D88FA6" strokeWidth="1" />
@@ -520,8 +601,8 @@ export const Welcome: React.FC = () => {
           </div>
         </section>
 
-        {/* SECTION 01 */}
-        <section className="s1" id="about" data-theme="light">
+        {/* SECTION 01 - STEP 1 */}
+        <section className="s1" id="how-it-works" data-theme="light">
           <img
             className="flower flower--hang"
             data-speed="0.35"
@@ -532,10 +613,10 @@ export const Welcome: React.FC = () => {
           <div className="text">
             <div className="num reveal">01</div>
             <h2 className="section-heading reveal d1">
-              Understand Your Skin's True Needs
+              Tell us about your skin
             </h2>
             <p className="section-explanation reveal d2">
-              Uncover what your skin actually requires with an assessment that evaluates your hydration levels, sensitivity triggers, and barrier resilience.
+              Share your skin type, concerns and preferences.
             </p>
             <ul className="section-benefits reveal d2">
               <li className="benefit-item">
@@ -578,15 +659,15 @@ export const Welcome: React.FC = () => {
           </div>
         </section>
 
-        {/* SECTION 02 (Dark / Dusty Rose) */}
+        {/* SECTION 02 - STEP 2 */}
         <section className="s2" id="access" data-theme="dark">
-          <div className="text">
+          <div className="text" id="about">
             <div className="num reveal">02</div>
             <h2 className="section-heading reveal d1">
-              Build Your Daily Ritual
+              Discover your recommendations
             </h2>
             <p className="section-explanation reveal d2">
-              Get a skincare routine designed around your individual skin profile, primary concerns, and daily lifestyle preferences.
+              Explore suitable products and skincare ingredients.
             </p>
             <ul className="section-benefits reveal d2">
               <li className="benefit-item">
@@ -652,8 +733,8 @@ export const Welcome: React.FC = () => {
           />
         </section>
 
-        {/* SECTION 03 */}
-        <section className="s3" data-theme="light">
+        {/* SECTION 03 - STEP 3 */}
+        <section className="s3" id="steps" data-theme="light">
           <img
             className="flower flower--passion"
             data-speed="-0.2"
@@ -664,10 +745,10 @@ export const Welcome: React.FC = () => {
           <div className="text">
             <div className="num reveal">03</div>
             <h2 className="section-heading reveal d1">
-              Make Every Step Count
+              Get your daily routine
             </h2>
             <p className="section-explanation reveal d2">
-              Follow clear application order, recommended usage frequencies, and evidence-backed guidance designed to protect your skin barrier.
+              Follow your personalised AM and PM skincare plan.
             </p>
             <ul className="section-benefits reveal d2">
               <li className="benefit-item">
@@ -733,101 +814,126 @@ export const Welcome: React.FC = () => {
             </header>
 
             <div className="science-grid">
-              {/* Pillar 1: Skin Type Identification */}
+              {/* 01: Skin Type Identification */}
               <div className="science-card">
-                <div className="science-card__num">01</div>
+                <div className="science-card__top">
+                  <div className="science-card__icon-wrap" aria-hidden="true">
+                    <Fingerprint className="science-card__icon" />
+                  </div>
+                  <span className="science-card__num">01</span>
+                </div>
                 <h3 className="science-card__title">Skin Type Identification</h3>
                 <p className="science-card__desc">
-                  Identified via follicular sebum excretion rates, transepidermal water loss (TEWL), and stratum corneum lipid resilience. This distinguishes true dry barriers from dehydrated, oily, and sensitive states.
+                  Every skin barrier is unique. We evaluate sebum secretion rates, moisture retention, and sensitivity thresholds to determine your true baseline profile.
                 </p>
-                <div className="science-card__sub">
-                  <span className="science-card__tag">Metric</span>
-                  <span className="science-card__val">TEWL & Sebum Level</span>
+                <div className="science-card__footer">
+                  <span className="science-card__pill">Hydration & Sebum Balance</span>
                 </div>
               </div>
 
-              {/* Pillar 2: Concern-Targeted Actives */}
+              {/* 02: Concern-Driven Advice */}
               <div className="science-card">
-                <div className="science-card__num">02</div>
-                <h3 className="science-card__title">Concern-Driven Actives</h3>
+                <div className="science-card__top">
+                  <div className="science-card__icon-wrap" aria-hidden="true">
+                    <Sparkles className="science-card__icon" />
+                  </div>
+                  <span className="science-card__num">02</span>
+                </div>
+                <h3 className="science-card__title">Concern-Driven Advice</h3>
                 <p className="science-card__desc">
-                  Every concern requires specific cellular pathways: keratolytic pore desquamation for acne (salicylic acid), tyrosinase inhibition for discoloration (azelaic acid, vitamin C), and retinoid receptor turnover for aging.
+                  Target persistent concerns with evidence-guided actives. Whether addressing breakouts, tone, or texture, recommendations follow verified cellular pathways.
                 </p>
-                <div className="science-card__sub">
-                  <span className="science-card__tag">Mechanism</span>
-                  <span className="science-card__val">Cellular Receptors</span>
+                <div className="science-card__footer">
+                  <span className="science-card__pill">Targeted Cellular Pathways</span>
                 </div>
               </div>
 
-              {/* Pillar 3: Clinical Ingredient Selection */}
+              {/* 03: Ingredient Selection */}
               <div className="science-card">
-                <div className="science-card__num">03</div>
-                <h3 className="science-card__title">Rigorous Ingredient Selection</h3>
+                <div className="science-card__top">
+                  <div className="science-card__icon-wrap" aria-hidden="true">
+                    <FlaskConical className="science-card__icon" />
+                  </div>
+                  <span className="science-card__num">03</span>
+                </div>
+                <h3 className="science-card__title">Ingredient Selection</h3>
                 <p className="science-card__desc">
-                  Formulations are vetted against randomized controlled trials (RCTs). We select ingredients with clinically proven therapeutic concentration windows, physiological bio-availability, and barrier tolerance.
+                  Formulations are vetted against randomized clinical trials. We select ingredients with clinically proven therapeutic concentration windows and high barrier tolerance.
                 </p>
-                <div className="science-card__sub">
-                  <span className="science-card__tag">Standard</span>
-                  <span className="science-card__val">Peer-Reviewed Trials</span>
+                <div className="science-card__footer">
+                  <span className="science-card__pill">Peer-Reviewed Efficacy</span>
                 </div>
               </div>
 
-              {/* Pillar 4: Molecular Compatibility */}
+              {/* 04: Ingredient Compatibility */}
               <div className="science-card">
-                <div className="science-card__num">04</div>
-                <h3 className="science-card__title">Molecular Compatibility</h3>
+                <div className="science-card__top">
+                  <div className="science-card__icon-wrap" aria-hidden="true">
+                    <Layers className="science-card__icon" />
+                  </div>
+                  <span className="science-card__num">04</span>
+                </div>
+                <h3 className="science-card__title">Ingredient Compatibility</h3>
                 <p className="science-card__desc">
-                  Product compatibility is vital: acidic actives (pH 3.0–3.8) destabilize neutral enzymes, while combining multiple strong keratolytics strips the acid mantle and compromises stratum corneum barrier function.
+                  Active compatibility is essential. Our logic evaluates formulation pH and chemical synergy to protect your acid mantle from destabilization and irritation.
                 </p>
-                <div className="science-card__sub">
-                  <span className="science-card__tag">Biochemistry</span>
-                  <span className="science-card__val">Acid Mantle (pH 4.5–5.5)</span>
+                <div className="science-card__footer">
+                  <span className="science-card__pill">pH & Chemical Synergy</span>
                 </div>
               </div>
 
-              {/* Pillar 5: Algorithmic Conflict Engine */}
-              <div className="science-card science-card--wide">
-                <div className="science-card__num">05</div>
-                <div className="science-card__content">
-                  <h3 className="science-card__title">How We Prevent Harmful Product Conflicts</h3>
-                  <p className="science-card__desc">
-                    Our pure-logic rules engine evaluates your product shelf against 3 conflict tiers (irritation cascade, chemical destabilization, and duplicate actives). Conflicting actives are safely organized through:
-                  </p>
-                  <ul className="science-card__points">
-                    <li>
-                      <strong>AM vs. PM Separation:</strong> Antioxidants like Vitamin C are scheduled for morning UV defence, while photosensitizing Retinoids and exfoliating acids are shifted to nighttime repair.
-                    </li>
-                    <li>
-                      <strong>Alternating Night Cycles:</strong> Strong exfoliants (AHA/BHA) and retinoids never layer together; they alternate across designated nights.
-                    </li>
-                    <li>
-                      <strong>Rest & Recovery Evenings:</strong> Incorporates barrier-first recovery nights with ceramides and centella to regenerate the stratum corneum.
-                    </li>
-                  </ul>
+              {/* 05: Personalised Recommendations */}
+              <div className="science-card">
+                <div className="science-card__top">
+                  <div className="science-card__icon-wrap" aria-hidden="true">
+                    <Heart className="science-card__icon" />
+                  </div>
+                  <span className="science-card__num">05</span>
+                </div>
+                <h3 className="science-card__title">Personalised Recommendations</h3>
+                <p className="science-card__desc">
+                  Build custom AM and PM rituals tailored to your skin and lifestyle. Receive optimal product application sequences and personalized usage cadences.
+                </p>
+                <div className="science-card__footer">
+                  <span className="science-card__pill">Tailored AM / PM Cadence</span>
+                </div>
+              </div>
+
+              {/* 06: Product Safety */}
+              <div className="science-card" id="ingredient-safety">
+                <div className="science-card__top">
+                  <div className="science-card__icon-wrap" aria-hidden="true">
+                    <ShieldCheck className="science-card__icon" />
+                  </div>
+                  <span className="science-card__num">06</span>
+                </div>
+                <h3 className="science-card__title">Product Safety</h3>
+                <p className="science-card__desc">
+                  Calibrated to dermatological safety boundaries. Conflicting actives are separated across alternating evenings with dedicated barrier recovery nights built in.
+                </p>
+                <div className="science-card__footer">
+                  <span className="science-card__pill">Barrier-First Protection</span>
                 </div>
               </div>
             </div>
 
             {/* Dermatological Authority & Substantiation Banner */}
-            <div className="science-credibility">
+            <div className="science-credibility" id="clinical-guidelines">
               <div className="science-credibility__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  <path d="m9 12 2 2 4-4" />
-                </svg>
+                <ShieldCheck className="w-5 h-5" />
               </div>
               <div className="science-credibility__body">
                 <h4 className="science-credibility__title">Substantiated by Published Clinical Practice Guidelines</h4>
                 <p className="science-credibility__text">
-                  Safety boundaries and compatibility logic are calibrated to clinical literature published by the <strong>American Academy of Dermatology (AAD)</strong> and the <strong>American Academy of Family Physicians (AAFP)</strong>. This includes first-line acne combination protocols, slow retinoid acclimation regimens, and mandatory broad-spectrum SPF 30+ UV protection.
+                  Safety boundaries and compatibility logic are calibrated to clinical literature published by the <strong>American Academy of Dermatology (AAD)</strong> and the <strong>American Academy of Family Physicians (AAFP)</strong>.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* FOOTER */}
-        <section className="foot" id="contact" data-theme="light">
+        {/* FOOTER & FINAL CTA (Closing Section) */}
+        <footer className="foot" id="contact" data-theme="light">
           {/* Top CTA Block */}
           <div className="foot__hero">
             <div className="cta">
@@ -858,7 +964,7 @@ export const Welcome: React.FC = () => {
           </div>
 
           {/* 4-Column Structured Footer */}
-          <div className="foot__nav reveal d2">
+          <div className="foot__nav">
             <div className="foot__grid">
               {/* Column 1: Skincare Ritual */}
               <div className="foot__col foot__col--brand">
@@ -874,10 +980,9 @@ export const Welcome: React.FC = () => {
               <div className="foot__col">
                 <h4 className="foot__col-title">Explore</h4>
                 <ul className="foot__links">
+                  <li><a href="#how-it-works">How It Works</a></li>
                   <li><a href="#science">The Science</a></li>
-                  <li><a href="#about">Skin Profiling</a></li>
-                  <li><a href="#access">Daily Rituals</a></li>
-                  <li><a href="#steps">Step Cadence</a></li>
+                  <li><Link to="/quiz">Skin Profiling</Link></li>
                 </ul>
               </div>
 
@@ -885,9 +990,9 @@ export const Welcome: React.FC = () => {
               <div className="foot__col">
                 <h4 className="foot__col-title">Resources</h4>
                 <ul className="foot__links">
-                  <li><a href="#science">Clinical Guidelines</a></li>
-                  <li><a href="#science">Ingredient Safety</a></li>
-                  <li><a href="#science">Active Compatibility</a></li>
+                  <li><a href="#clinical-guidelines">Clinical Guidelines</a></li>
+                  <li><a href="#ingredient-safety">Ingredient Safety</a></li>
+                  <li><Link to="/compatibility">Active Compatibility</Link></li>
                   <li>
                     <button onClick={handleStart} className="foot__link-cta">
                       Build My Routine →
@@ -915,14 +1020,17 @@ export const Welcome: React.FC = () => {
               </div>
             </div>
 
-            {/* Clear Copyright Line */}
+            {/* Safety Disclaimer & Clear Copyright Line */}
             <div className="foot__bottom">
+              <p className="foot__disclaimer">
+                Skincare recommendations are provided for informational purposes and are not a substitute for professional medical advice. Patch-test new products and consult a dermatologist for persistent or severe skin concerns.
+              </p>
               <p className="foot__copyright">
                 © {new Date().getFullYear()} Skincare Ritual. All rights reserved. • Formulated for barrier health.
               </p>
             </div>
           </div>
-        </section>
+        </footer>
       </main>
 
       {/* Floating Badge */}
