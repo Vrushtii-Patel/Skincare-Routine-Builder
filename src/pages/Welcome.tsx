@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Fingerprint, Sparkles, FlaskConical, Layers, Heart, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { useStore } from '../store/useStore';
@@ -24,8 +24,8 @@ const K_DESKTOP: Keyframe[] = [
   { x: -0.42, y: -0.06, s: 0.78, yaw: 125, pitch: 8,  roll:  5 },
   // 3. Step 02 (Discover your recommendations): Dramatic visual towards the right on dark background, text on left
   { x: 0.38, y: -0.16, s: 0.86, yaw: 40,  pitch: -4, roll: -6 },
-  // 4. Step 03 (Get your daily routine): Towards left with hydration spheres, clear text area on right
-  { x: -0.40, y: -0.10, s: 0.78, yaw: 150, pitch: 6,  roll:  4 },
+  // 4. Step 03 (Get your daily routine): Positioned clear of hydration spheres on left and text on right
+  { x: -0.30, y: -0.10, s: 0.78, yaw: 150, pitch: 6,  roll:  4 },
   // 5. The Science: Refined small scale in the central avenue so it never hides text behind
   { x: 0.00, y: -0.04, s: 0.28, yaw: 125, pitch: 5,  roll: -3 },
   // 6. Final CTA: Lifted well clear above the footer line and reduced by a cm
@@ -33,12 +33,18 @@ const K_DESKTOP: Keyframe[] = [
 ];
 
 const K_MOBILE: Keyframe[] = [
-  { x: 0.18, y: -0.46, s: 0.50, yaw: 140, pitch: 6,  roll: -4 },
-  { x: -0.24, y: 0.10, s: 0.59, yaw: 125, pitch: 8,  roll:  5 },
-  { x: 0.24, y: -0.12, s: 0.63, yaw: 40,  pitch: -4, roll: -6 },
-  { x: -0.24, y: 0.10, s: 0.58, yaw: 150, pitch: 6,  roll:  4 },
-  { x: 0.00, y:  0.02, s: 0.20, yaw: 120, pitch: 5,  roll: -2 },
-  { x: 0.00, y:  0.28, s: 0.28, yaw: 110, pitch: 4,  roll:  0 },
+  // 1. Hero: Centered in open space between top headline and bottom CTA, perfectly clear of text
+  { x: 0.00, y:  0.08, s: 0.28, yaw: 140, pitch: 6,  roll: -4 },
+  // 2. Step 01 (Skin Profiling): Lower half, well clear below the preview card
+  { x: 0.00, y: -0.62, s: 0.26, yaw: 125, pitch: 8,  roll:  5 },
+  // 3. Step 02 (Active Compatibility): Lower half, well clear below the architecture card
+  { x: 0.00, y: -0.62, s: 0.26, yaw: 40,  pitch: -4, roll: -6 },
+  // 4. Step 03 (Daily Rituals): Lower half, well clear below the order guidance card
+  { x: 0.00, y: -0.62, s: 0.26, yaw: 150, pitch: 6,  roll:  4 },
+  // 5. The Science: Scaled to 0 so single-column cards are 100% unobstructed on mobile
+  { x: 0.00, y:  0.00, s: 0.00, yaw: 120, pitch: 5,  roll: -2 },
+  // 6. Final CTA: Elevated above CTA text, zero footer overlap
+  { x: 0.00, y:  0.36, s: 0.20, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 function ease(t: number): number {
@@ -330,7 +336,7 @@ export const Welcome: React.FC = () => {
       window.addEventListener('resize', onResize);
 
       // State tracking
-      const isMobile = window.innerWidth < 760;
+      const isMobile = window.innerWidth <= 768;
       const initialTarget = targetAt(0, isMobile);
       const cur = {
         x: initialTarget.x,
@@ -374,7 +380,7 @@ export const Welcome: React.FC = () => {
 
         const vh = window.innerHeight || 1;
         const p = computeScrollProgress(vh);
-        const mobile = window.innerWidth < 760;
+        const mobile = window.innerWidth <= 768;
         const target = targetAt(p, mobile);
 
         // Dynamic Science section turn:
@@ -816,104 +822,50 @@ export const Welcome: React.FC = () => {
             <div className="science-grid">
               {/* 01: Skin Type Identification */}
               <div className="science-card">
-                <div className="science-card__top">
-                  <div className="science-card__icon-wrap" aria-hidden="true">
-                    <Fingerprint className="science-card__icon" />
-                  </div>
-                  <span className="science-card__num">01</span>
-                </div>
                 <h3 className="science-card__title">Skin Type Identification</h3>
                 <p className="science-card__desc">
                   Every skin barrier is unique. We evaluate sebum secretion rates, moisture retention, and sensitivity thresholds to determine your true baseline profile.
                 </p>
-                <div className="science-card__footer">
-                  <span className="science-card__pill">Hydration & Sebum Balance</span>
-                </div>
               </div>
 
               {/* 02: Concern-Driven Advice */}
               <div className="science-card">
-                <div className="science-card__top">
-                  <div className="science-card__icon-wrap" aria-hidden="true">
-                    <Sparkles className="science-card__icon" />
-                  </div>
-                  <span className="science-card__num">02</span>
-                </div>
                 <h3 className="science-card__title">Concern-Driven Advice</h3>
                 <p className="science-card__desc">
                   Target persistent concerns with evidence-guided actives. Whether addressing breakouts, tone, or texture, recommendations follow verified cellular pathways.
                 </p>
-                <div className="science-card__footer">
-                  <span className="science-card__pill">Targeted Cellular Pathways</span>
-                </div>
               </div>
 
               {/* 03: Ingredient Selection */}
               <div className="science-card">
-                <div className="science-card__top">
-                  <div className="science-card__icon-wrap" aria-hidden="true">
-                    <FlaskConical className="science-card__icon" />
-                  </div>
-                  <span className="science-card__num">03</span>
-                </div>
                 <h3 className="science-card__title">Ingredient Selection</h3>
                 <p className="science-card__desc">
                   Formulations are vetted against randomized clinical trials. We select ingredients with clinically proven therapeutic concentration windows and high barrier tolerance.
                 </p>
-                <div className="science-card__footer">
-                  <span className="science-card__pill">Peer-Reviewed Efficacy</span>
-                </div>
               </div>
 
               {/* 04: Ingredient Compatibility */}
               <div className="science-card">
-                <div className="science-card__top">
-                  <div className="science-card__icon-wrap" aria-hidden="true">
-                    <Layers className="science-card__icon" />
-                  </div>
-                  <span className="science-card__num">04</span>
-                </div>
                 <h3 className="science-card__title">Ingredient Compatibility</h3>
                 <p className="science-card__desc">
                   Active compatibility is essential. Our logic evaluates formulation pH and chemical synergy to protect your acid mantle from destabilization and irritation.
                 </p>
-                <div className="science-card__footer">
-                  <span className="science-card__pill">pH & Chemical Synergy</span>
-                </div>
               </div>
 
               {/* 05: Personalised Recommendations */}
               <div className="science-card">
-                <div className="science-card__top">
-                  <div className="science-card__icon-wrap" aria-hidden="true">
-                    <Heart className="science-card__icon" />
-                  </div>
-                  <span className="science-card__num">05</span>
-                </div>
                 <h3 className="science-card__title">Personalised Recommendations</h3>
                 <p className="science-card__desc">
                   Build custom AM and PM rituals tailored to your skin and lifestyle. Receive optimal product application sequences and personalized usage cadences.
                 </p>
-                <div className="science-card__footer">
-                  <span className="science-card__pill">Tailored AM / PM Cadence</span>
-                </div>
               </div>
 
               {/* 06: Product Safety */}
               <div className="science-card" id="ingredient-safety">
-                <div className="science-card__top">
-                  <div className="science-card__icon-wrap" aria-hidden="true">
-                    <ShieldCheck className="science-card__icon" />
-                  </div>
-                  <span className="science-card__num">06</span>
-                </div>
                 <h3 className="science-card__title">Product Safety</h3>
                 <p className="science-card__desc">
                   Calibrated to dermatological safety boundaries. Conflicting actives are separated across alternating evenings with dedicated barrier recovery nights built in.
                 </p>
-                <div className="science-card__footer">
-                  <span className="science-card__pill">Barrier-First Protection</span>
-                </div>
               </div>
             </div>
 
