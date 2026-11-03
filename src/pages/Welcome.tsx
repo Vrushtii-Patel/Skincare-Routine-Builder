@@ -26,8 +26,8 @@ const K_DESKTOP: Keyframe[] = [
   { x: 0.40, y:  0.00, s: 0.68, yaw: 40,  pitch: -4, roll: -6 },
   // 4. Step 03 (Get your daily routine): Left-side anchor, aligned vertically with right card (unified proportion)
   { x: -0.40, y:  0.00, s: 0.68, yaw: 150, pitch: 6,  roll:  4 },
-  // 5. The Science: Refined small scale in central avenue between columns (-14% refined scale)
-  { x: 0.00, y: -0.02, s: 0.24, yaw: 125, pitch: 5,  roll: -3 },
+  // 5. The Science: Refined scale centered in the widened central avenue, clear of card boundaries
+  { x: 0.00, y: -0.02, s: 0.19, yaw: 125, pitch: 5,  roll: -3 },
   // 6. Final CTA: Framed cleanly on the right, well clear of footer lines (-14% refined scale)
   { x: 0.38, y:  0.34, s: 0.30, yaw: 115, pitch: 6,  roll: -2 },
 ];
@@ -174,7 +174,6 @@ export const Welcome: React.FC = () => {
         el.style.transform = `translate3d(0, ${p * speed * vh}px, 0) rotate(${p * rot}deg)`;
       });
 
-      // Smooth exit fade: as section content scrolls past the top, fade it out gracefully
       // to avoid headings passing underneath the navbar or clipping against boundaries.
       // The final CTA and footer sections are excluded so their headlines and content remain stable.
       sections?.forEach((sec) => {
@@ -216,12 +215,21 @@ export const Welcome: React.FC = () => {
       navLinks?.forEach((link) => {
         const href = link.getAttribute('href');
         if (!href || !href.startsWith('#')) return;
-        const target = document.querySelector<HTMLElement>(href);
-        if (target) {
-          const rect = target.getBoundingClientRect();
-          const inView = rect.top <= vh * 0.45 && rect.bottom > vh * 0.2;
-          link.classList.toggle('active', inView);
+        let inView = false;
+        if (href === '#how-it-works') {
+          const s1 = document.getElementById('how-it-works')?.getBoundingClientRect();
+          const s3 = document.getElementById('steps')?.getBoundingClientRect();
+          if (s1 && s3) {
+            inView = s1.top <= vh * 0.45 && s3.bottom >= vh * 0.25;
+          }
+        } else {
+          const target = document.querySelector<HTMLElement>(href);
+          if (target) {
+            const rect = target.getBoundingClientRect();
+            inView = rect.top <= vh * 0.45 && rect.bottom > vh * 0.2;
+          }
         }
+        link.classList.toggle('active', inView);
       });
 
       // Foot section active state: triggers as footer approaches the viewport
@@ -429,18 +437,23 @@ export const Welcome: React.FC = () => {
         const vFOV = (camera.fov * Math.PI) / 180;
         const halfH = Math.tan(vFOV / 2) * camera.position.z;
         const halfW = halfH * camera.aspect;
-        const hover = Math.sin(t * 2.1) * 0.045 + Math.sin(t * 3.7) * 0.015;
+
+        // Floating bottle: gentle 4–6s harmonic cycle with ease-in-out drift
+        const prefersReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // 5.0s fundamental cycle: (2 * PI / 5.0) rad/s
+        const bottleCycle = prefersReduced ? 0 : (t * Math.PI * 2) / 5.0;
+        const hover = prefersReduced ? 0 : Math.sin(bottleCycle) * 0.038 + Math.sin(bottleCycle * 0.5 + 1.2) * 0.012;
 
         // Flight group transformation
         flight.position.set(
-          cur.x * halfW + Math.sin(t * 1.3) * 0.04 + mouse.sx * 0.12,
-          cur.y * halfH + hover * halfH * 0.5 + mouse.sy * 0.08,
-          Math.sin(t * 0.9) * 0.15
+          cur.x * halfW + (prefersReduced ? 0 : Math.sin(bottleCycle * 0.6) * 0.025) + mouse.sx * 0.10,
+          cur.y * halfH + hover * halfH * 0.5 + mouse.sy * 0.06,
+          prefersReduced ? 0 : Math.sin(bottleCycle * 0.4) * 0.06
         );
         flight.scale.setScalar(halfH * 2 * 0.30 * cur.s);
         flight.rotation.set(
           0,
-          -((cur.yaw + curScienceTurn + mouse.sx * 12) * Math.PI) / 180,
+          -((cur.yaw + curScienceTurn + mouse.sx * 10) * Math.PI) / 180,
           0
         );
 
@@ -449,13 +462,13 @@ export const Welcome: React.FC = () => {
           cur.pitch +
           curSciencePitch -
           clamp(vy * 22, -28, 28) +
-          Math.sin(t * 2.1 + 1) * 3 +
-          mouse.sy * 6;
+          (prefersReduced ? 0 : Math.sin(bottleCycle + 1) * 1.8) +
+          mouse.sy * 5;
         const roll =
           cur.roll +
           Math.sin(curScienceTurn * (Math.PI / 180)) * 5 +
           clamp(vx * 18, -30, 30) +
-          Math.sin(t * 1.7) * 4;
+          (prefersReduced ? 0 : Math.sin(bottleCycle * 0.8) * 2.2);
 
         objectRoot.rotation.set(
           (roll * Math.PI) / 180,
@@ -570,13 +583,23 @@ export const Welcome: React.FC = () => {
             </span>
           </h1>
 
-          <img
-            className="flower flower--cosmos"
+          {/* Subtle Floating Pearl Decorations (Inspired by editorial skincare textures) */}
+          <div className="pearl-decor pearl--1" aria-hidden="true" />
+          <div className="pearl-decor pearl--2" aria-hidden="true" />
+          <div className="pearl-decor pearl--3" aria-hidden="true" />
+          <div className="pearl-decor pearl--4" aria-hidden="true" />
+
+          <div
+            className="flower-wrap flower-wrap--cosmos"
             data-speed="-0.25"
             data-rot="8"
-            src="/assets/skincare/cream-swirl.png"
-            alt="Silky whipped moisturizing cream swirl with dewy hydration"
-          />
+          >
+            <img
+              className="flower flower--cosmos"
+              src="/assets/skincare/cream-swirl.png"
+              alt="Silky whipped moisturizing cream swirl with dewy hydration"
+            />
+          </div>
 
           <div className="hero__side">
             <p className="hero__tagline">Your skin is unique. Your routine should be too.</p>
@@ -611,13 +634,17 @@ export const Welcome: React.FC = () => {
 
         {/* SECTION 01 - STEP 1 */}
         <section className="s1" id="how-it-works" data-theme="light">
-          <img
-            className="flower flower--hang"
+          <div
+            className="flower-wrap flower-wrap--hang"
             data-speed="0.35"
             data-rot="-6"
-            src="/assets/skincare/moisture-drops.png"
-            alt="Crystalline hydrating essence droplets cascading with moisture"
-          />
+          >
+            <img
+              className="flower flower--hang"
+              src="/assets/skincare/moisture-drops.png"
+              alt="Crystalline hydrating essence droplets cascading with moisture"
+            />
+          </div>
           <div className="text">
             {/* Step Sequence Header with Progress Bar */}
             <div className="step-header-lockup reveal">
@@ -775,24 +802,32 @@ export const Welcome: React.FC = () => {
             </a>
           </div>
 
-          <img
-            className="flower flower--iris"
+          <div
+            className="flower-wrap flower-wrap--iris"
             data-speed="-0.3"
             data-rot="10"
-            src="/assets/skincare/peptide-swatch.png"
-            alt="Luminous translucent rose peptide gel-cream swatch"
-          />
+          >
+            <img
+              className="flower flower--iris"
+              src="/assets/skincare/peptide-swatch.png"
+              alt="Luminous translucent rose peptide gel-cream swatch"
+            />
+          </div>
         </section>
 
         {/* SECTION 03 - STEP 3 */}
         <section className="s3" id="steps" data-theme="light">
-          <img
-            className="flower flower--passion"
+          <div
+            className="flower-wrap flower-wrap--passion"
             data-speed="-0.2"
             data-rot="-10"
-            src="/assets/skincare/hydration-spheres.png"
-            alt="Sculptural hydrating water spheres and hyaluronic acid gel cluster"
-          />
+          >
+            <img
+              className="flower flower--passion"
+              src="/assets/skincare/hydration-spheres.png"
+              alt="Sculptural hydrating water spheres and hyaluronic acid gel cluster"
+            />
+          </div>
           <div className="text">
             {/* Step Sequence Header with Progress Bar */}
             <div className="step-header-lockup reveal">
@@ -870,7 +905,7 @@ export const Welcome: React.FC = () => {
         {/* SKINCARE SCIENCE & CREDIBILITY */}
         <section className="science-section" id="science" data-theme="light">
           <div className="science-container">
-            <header className="science-header">
+            <header className="science-header reveal">
               <span className="science-eyebrow">Dermatological Methodology</span>
               <h2 className="science-title">The Science Behind Every Ritual</h2>
               <p className="science-subtitle">
@@ -979,8 +1014,9 @@ export const Welcome: React.FC = () => {
             <div className="foot__grid">
               {/* Column 1: Skincare Ritual */}
               <div className="foot__col foot__col--brand">
+                <h4 className="foot__col-title">About</h4>
                 <div className="brand">
-                  <strong>Skincare Ritual</strong>
+                  <strong className="brand__name">Skincare Ritual</strong>
                   <p className="brand__desc">
                     Evidence-backed routines crafted around your unique skin barrier. Understand your skin type, eliminate active ingredient conflicts, and master your daily ritual.
                   </p>
@@ -1023,8 +1059,16 @@ export const Welcome: React.FC = () => {
                       href="https://github.com/vrushti-gates/Skincare-routine-builder"
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="foot__github-link"
+                      aria-label="GitHub Repository"
                     >
-                      GitHub
+                      <svg className="foot__github-icon" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                      </svg>
+                      <span>GitHub</span>
+                      <svg className="foot__external-arrow" viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M3.5 8.5l5-5M4 3.5h4.5V8" />
+                      </svg>
                     </a>
                   </li>
                 </ul>
