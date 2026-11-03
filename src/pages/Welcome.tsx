@@ -18,33 +18,33 @@ interface Keyframe {
 }
 
 const K_DESKTOP: Keyframe[] = [
-  // 1. Hero: Centered lower sweet spot, completely clear of both headline and right description
-  { x: 0.04, y: -0.72, s: 0.63, yaw: 140, pitch: 6,  roll: -4 },
-  // 2. Step 01 (Tell us about your skin): Left-centre behind/alongside moisture drops, clear of right-hand text
-  { x: -0.42, y: -0.06, s: 0.78, yaw: 125, pitch: 8,  roll:  5 },
-  // 3. Step 02 (Discover your recommendations): Dramatic visual towards the right on dark background, text on left
-  { x: 0.38, y: -0.16, s: 0.86, yaw: 40,  pitch: -4, roll: -6 },
-  // 4. Step 03 (Get your daily routine): Positioned clear of hydration spheres on left and text on right
-  { x: -0.30, y: -0.10, s: 0.78, yaw: 150, pitch: 6,  roll:  4 },
-  // 5. The Science: Refined small scale in the central avenue so it never hides text behind
-  { x: 0.00, y: -0.04, s: 0.28, yaw: 125, pitch: 5,  roll: -3 },
-  // 6. Final CTA: Lifted well clear above the footer line and reduced by a cm
-  { x: 0.40, y:  0.38, s: 0.35, yaw: 115, pitch: 6,  roll: -2 },
+  // 1. Hero: Centered lower sweet spot, completely clear of both headline and right description (-14% refined scale)
+  { x: 0.04, y: -0.70, s: 0.54, yaw: 140, pitch: 6,  roll: -4 },
+  // 2. Step 01 (Tell us about your skin): Left-side anchor, aligned vertically with right card (-13% refined scale)
+  { x: -0.40, y:  0.00, s: 0.68, yaw: 125, pitch: 8,  roll:  5 },
+  // 3. Step 02 (Discover your recommendations): Right-side anchor, aligned vertically with left card (unified proportion)
+  { x: 0.40, y:  0.00, s: 0.68, yaw: 40,  pitch: -4, roll: -6 },
+  // 4. Step 03 (Get your daily routine): Left-side anchor, aligned vertically with right card (unified proportion)
+  { x: -0.40, y:  0.00, s: 0.68, yaw: 150, pitch: 6,  roll:  4 },
+  // 5. The Science: Refined small scale in central avenue between columns (-14% refined scale)
+  { x: 0.00, y: -0.02, s: 0.24, yaw: 125, pitch: 5,  roll: -3 },
+  // 6. Final CTA: Framed cleanly on the right, well clear of footer lines (-14% refined scale)
+  { x: 0.38, y:  0.34, s: 0.30, yaw: 115, pitch: 6,  roll: -2 },
 ];
 
 const K_MOBILE: Keyframe[] = [
   // 1. Hero: Centered in open space between top headline and bottom CTA, perfectly clear of text
-  { x: 0.00, y:  0.08, s: 0.28, yaw: 140, pitch: 6,  roll: -4 },
-  // 2. Step 01 (Skin Profiling): Lower half, well clear below the preview card
-  { x: 0.00, y: -0.62, s: 0.26, yaw: 125, pitch: 8,  roll:  5 },
-  // 3. Step 02 (Active Compatibility): Lower half, well clear below the architecture card
-  { x: 0.00, y: -0.62, s: 0.26, yaw: 40,  pitch: -4, roll: -6 },
-  // 4. Step 03 (Daily Rituals): Lower half, well clear below the order guidance card
-  { x: 0.00, y: -0.62, s: 0.26, yaw: 150, pitch: 6,  roll:  4 },
+  { x: 0.00, y:  0.08, s: 0.24, yaw: 140, pitch: 6,  roll: -4 },
+  // 2. Step 01 (Skin Profiling): Lower half, well clear below the preview card and connector
+  { x: 0.00, y: -0.85, s: 0.19, yaw: 125, pitch: 8,  roll:  5 },
+  // 3. Step 02 (Active Compatibility): Lower half, well clear below the architecture card and connector
+  { x: 0.00, y: -0.85, s: 0.19, yaw: 40,  pitch: -4, roll: -6 },
+  // 4. Step 03 (Daily Rituals): Lower half, cleared below the sequence button on mobile
+  { x: 0.00, y: -0.92, s: 0.18, yaw: 150, pitch: 6,  roll:  4 },
   // 5. The Science: Scaled to 0 so single-column cards are 100% unobstructed on mobile
   { x: 0.00, y:  0.00, s: 0.00, yaw: 120, pitch: 5,  roll: -2 },
   // 6. Final CTA: Elevated above CTA text, zero footer overlap
-  { x: 0.00, y:  0.36, s: 0.20, yaw: 110, pitch: 4,  roll:  0 },
+  { x: 0.00, y:  0.36, s: 0.18, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 function ease(t: number): number {
@@ -131,6 +131,7 @@ function computeScrollProgress(vh: number): number {
 export const Welcome: React.FC = () => {
   const navigate = useNavigate();
   const isOnboarded = useStore((state) => state.profile.isOnboarded);
+  const user = useStore((state) => state.user);
 
   const [webGlFailed, setWebGlFailed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -138,7 +139,8 @@ export const Welcome: React.FC = () => {
   const mainRef = useRef<HTMLElement | null>(null);
 
   const handleStart = () => {
-    if (isOnboarded) {
+    // If not signed in or not onboarded, always navigate to the quiz
+    if (user && isOnboarded) {
       navigate('/today');
     } else {
       navigate('/quiz');
@@ -617,13 +619,27 @@ export const Welcome: React.FC = () => {
             alt="Crystalline hydrating essence droplets cascading with moisture"
           />
           <div className="text">
-            <div className="num reveal">01</div>
-            <h2 className="section-heading reveal d1">
-              Tell us about your skin
-            </h2>
-            <p className="section-explanation reveal d2">
-              Share your skin type, concerns and preferences.
-            </p>
+            {/* Step Sequence Header with Progress Bar */}
+            <div className="step-header-lockup reveal">
+              <div className="step-progress-row">
+                <span className="step-progress-pill is-active">01 • Profiling</span>
+                <span className="step-progress-connector"></span>
+                <span className="step-progress-pill">02 • Formulation</span>
+                <span className="step-progress-connector"></span>
+                <span className="step-progress-pill">03 • Ritual</span>
+              </div>
+              <div className="step-title-pair">
+                <span className="step-large-num" aria-hidden="true">01</span>
+                <div className="step-title-content">
+                  <span className="step-eyebrow">Phase One</span>
+                  <h2 className="section-heading">Tell us about your skin</h2>
+                  <p className="section-explanation">
+                    Share your skin type, barrier concerns, and preferences to build your personal baseline profile.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <ul className="section-benefits reveal d2">
               <li className="benefit-item">
                 <span className="benefit-icon" aria-hidden="true">
@@ -662,19 +678,40 @@ export const Welcome: React.FC = () => {
                 <span className="preview-chip">Actives: Niacinamide & Peptides</span>
               </div>
             </div>
+
+            <a href="#access" className="step-sequence-connector reveal d3" aria-label="Proceed to Step 02">
+              <span>Next: Step 02 • Active Compatibility</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3v10M4 9l4 4 4-4" />
+              </svg>
+            </a>
           </div>
         </section>
 
         {/* SECTION 02 - STEP 2 */}
-        <section className="s2" id="access" data-theme="dark">
+        <section className="s2" id="access" data-theme="light">
           <div className="text" id="about">
-            <div className="num reveal">02</div>
-            <h2 className="section-heading reveal d1">
-              Discover your recommendations
-            </h2>
-            <p className="section-explanation reveal d2">
-              Explore suitable products and skincare ingredients.
-            </p>
+            {/* Step Sequence Header with Progress Bar */}
+            <div className="step-header-lockup reveal">
+              <div className="step-progress-row">
+                <span className="step-progress-pill is-done">01 • Profiling</span>
+                <span className="step-progress-connector is-done"></span>
+                <span className="step-progress-pill is-active">02 • Formulation</span>
+                <span className="step-progress-connector"></span>
+                <span className="step-progress-pill">03 • Ritual</span>
+              </div>
+              <div className="step-title-pair">
+                <span className="step-large-num" aria-hidden="true">02</span>
+                <div className="step-title-content">
+                  <span className="step-eyebrow">Phase Two</span>
+                  <h2 className="section-heading">Discover your recommendations</h2>
+                  <p className="section-explanation">
+                    Explore clinically vetted active ingredients and targeted formulas verified for complete compatibility.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <ul className="section-benefits reveal d2">
               <li className="benefit-item">
                 <span className="benefit-icon" aria-hidden="true">
@@ -729,7 +766,15 @@ export const Welcome: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <a href="#steps" className="step-sequence-connector reveal d3" aria-label="Proceed to Step 03">
+              <span>Next: Step 03 • Daily Routine</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3v10M4 9l4 4 4-4" />
+              </svg>
+            </a>
           </div>
+
           <img
             className="flower flower--iris"
             data-speed="-0.3"
@@ -749,13 +794,27 @@ export const Welcome: React.FC = () => {
             alt="Sculptural hydrating water spheres and hyaluronic acid gel cluster"
           />
           <div className="text">
-            <div className="num reveal">03</div>
-            <h2 className="section-heading reveal d1">
-              Get your daily routine
-            </h2>
-            <p className="section-explanation reveal d2">
-              Follow your personalised AM and PM skincare plan.
-            </p>
+            {/* Step Sequence Header with Progress Bar */}
+            <div className="step-header-lockup reveal">
+              <div className="step-progress-row">
+                <span className="step-progress-pill is-done">01 • Profiling</span>
+                <span className="step-progress-connector is-done"></span>
+                <span className="step-progress-pill is-done">02 • Formulation</span>
+                <span className="step-progress-connector is-done"></span>
+                <span className="step-progress-pill is-active">03 • Ritual</span>
+              </div>
+              <div className="step-title-pair">
+                <span className="step-large-num" aria-hidden="true">03</span>
+                <div className="step-title-content">
+                  <span className="step-eyebrow">Phase Three</span>
+                  <h2 className="section-heading">Get your daily routine</h2>
+                  <p className="section-explanation">
+                    Receive your tailored AM and PM ritual with step-by-step application order and weekly skin cycling.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <ul className="section-benefits reveal d2">
               <li className="benefit-item">
                 <span className="benefit-icon" aria-hidden="true">
@@ -984,19 +1043,6 @@ export const Welcome: React.FC = () => {
           </div>
         </footer>
       </main>
-
-      {/* Floating Badge */}
-      <div className="badge">
-        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <circle cx="6" cy="6" r="4.2" />
-          <circle cx="14" cy="6" r="4.2" opacity="0.75" />
-          <circle cx="6" cy="14" r="4.2" opacity="0.75" />
-          <circle cx="14" cy="14" r="4.2" />
-        </svg>
-        <span>
-          Made for <b>Skincare Routine</b>
-        </span>
-      </div>
     </div>
   );
 };

@@ -8,16 +8,16 @@ export default {
     extend: {
       colors: {
         rose: {
-          50: '#FDF7F8',
-          100: '#FBF0F2',
-          200: '#F4D9DF',
-          300: '#E7BDC7',
-          400: '#D5A4AF',
-          500: '#C496A1', // Primary Dusty Rose
-          600: '#A97582',
-          700: '#8C5A66',
-          800: '#70434E',
-          900: '#543039',
+          50: '#FFF1F4',  // Landing page hero background
+          100: '#FBE8EE', // Landing page lilac background
+          200: '#F6DCE5', // Landing page light pink
+          300: '#E8BAC9',
+          400: '#D88FA6', // Landing page accent number / highlight
+          500: '#B96F87', // Landing page dusty rose primary accent
+          600: '#A15970',
+          700: '#874358',
+          800: '#672F41',
+          900: '#4D1E2F',
         },
         sage: {
           50: '#F5F7F3',
@@ -25,51 +25,57 @@ export default {
           200: '#D5E0CF',
           300: '#BDCEB4',
           400: '#A6B89A',
-          500: '#919D85', // Primary Muted Sage
+          500: '#919D85',
           600: '#758269',
           700: '#5C6752',
           800: '#444C3D',
           900: '#2E332A',
         },
         lavender: {
-          50: '#F8F7FA',
-          100: '#EEEAF5',
-          200: '#DDD6EB',
-          300: '#C4BADB',
-          400: '#A99EC0',
-          500: '#8E88A3', // Primary Lavender Purple
+          50: '#FAF8FC',
+          100: '#F1ECF7',
+          200: '#E2D9EE',
+          300: '#C8BCD9',
+          400: '#A798BE',
+          500: '#8E88A3',
           600: '#726C87',
           700: '#58536C',
           800: '#403C50',
           900: '#2A2735',
         },
         cream: {
-          50: '#FAF8F3',
-          100: '#F4EFE2',
-          200: '#EBE1C6', // Primary Vintage Cream
-          300: '#DFCFA7',
-          400: '#CEB984',
-          500: '#BAA267',
-          600: '#98834F',
-          700: '#75643B',
-          800: '#544729',
-          900: '#342B18',
+          50: '#FFF8FA',
+          100: '#FCEEF3',
+          200: '#F7DDE6',
+          300: '#EFC4D4',
+          400: '#DF9DB5',
+          500: '#B96F87',
+          600: '#9E5B71',
+          700: '#7E4255',
+          800: '#592938',
+          900: '#3D1B26',
         },
-        ivory: '#FAF7F2',
-        card: '#FDFBF7',
+        ivory: '#FFF1F4',
+        card: 'rgba(255, 255, 255, 0.82)',
+        ink: '#3D2630',
+        lilac: '#FBE8EE',
         cocoa: {
-          50: '#F7F5F4',
-          100: '#EDE9E7',
-          200: '#D8D2CD',
-          400: '#8A8079',
-          600: '#5C524C',
-          800: '#3D342F',
-          900: '#28221E',
+          50: '#FAF6F8',
+          100: '#F3EBF0',
+          200: '#E5D7DE',
+          300: '#CEBBC4',
+          400: '#A48693',
+          500: '#886875', // Landing page muted text
+          600: '#6E4F5D',
+          700: '#573B49',
+          800: '#462C38',
+          900: '#3D2630', // Landing page primary ink
         }
       },
       fontFamily: {
-        serif: ['Playfair Display', 'Cormorant Garamond', 'Georgia', 'Cambria', 'serif'],
-        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Poppins', 'system-ui', '-apple-system', 'sans-serif'],
+        editorial: ['Poppins', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Poppins', 'system-ui', '-apple-system', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1rem',
@@ -77,13 +83,13 @@ export default {
         '4xl': '2rem',
       },
       boxShadow: {
-        'soft': '0 2px 12px -2px rgba(92, 82, 76, 0.05), 0 1px 3px 0 rgba(92, 82, 76, 0.03)',
-        'soft-lg': '0 10px 25px -3px rgba(92, 82, 76, 0.08), 0 4px 10px -2px rgba(92, 82, 76, 0.04)',
-        'rose-glow': '0 4px 20px -2px rgba(196, 150, 161, 0.25)',
+        'soft': '0 4px 20px -2px rgba(61, 38, 48, 0.05), 0 2px 6px -1px rgba(61, 38, 48, 0.03)',
+        'soft-lg': '0 14px 34px -4px rgba(61, 38, 48, 0.08), 0 4px 12px -2px rgba(61, 38, 48, 0.04)',
+        'glass': '0 8px 32px 0 rgba(61, 38, 48, 0.06)',
+        'rose-glow': '0 4px 20px -2px rgba(216, 143, 166, 0.35)',
         'sage-glow': '0 4px 20px -2px rgba(145, 157, 133, 0.25)',
       }
     },
   },
   plugins: [],
 }
-

@@ -9,6 +9,10 @@ import {
   SunscreenGuidanceNotice,
 } from '../safety/SafetyNotices';
 import { Welcome } from '../../pages/Welcome';
+import { Quiz } from '../../pages/Quiz';
+import { Today } from '../../pages/Today';
+import { Navbar } from '../layout/Navbar';
+import { useStore } from '../../store/useStore';
 
 describe('UI Components & Accessibility', () => {
   it('renders custom SVG bottle illustrations in each shape', () => {
@@ -101,5 +105,59 @@ describe('UI Components & Accessibility', () => {
     expect(screen.queryByText(/Signed in as/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^My Routine$/i)).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Sign In$/i })).not.toBeInTheDocument();
+  });
+
+  it('renders Quiz and navigates to the Ritual Ready Google Sign-In step', () => {
+    render(
+      <BrowserRouter>
+        <Quiz />
+      </BrowserRouter>
+    );
+
+    // Step 0: Foundation
+    expect(screen.getByText('How would you describe your skin?')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Balanced / Normal'));
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    // Step 1: Goals
+    expect(screen.getByText('What are your main skincare focuses?')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    // Step 2: Tolerability
+    expect(screen.getByText('Does your skin lean sensitive?')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    // Step 3: Exclusions
+    expect(screen.getByText('Are there any ingredients you prefer to avoid?')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /continue/i }));
+
+    // Step 4: Profile Confirmation
+    expect(screen.getByText('Review your skin parameters')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /generate my ritual/i }));
+
+    // Step 5: Personal Ritual Ready (Celebration & Google Sign-In)
+    expect(screen.getByText('Your Personal Skin Ritual is Ready')).toBeInTheDocument();
+    expect(screen.getByText(/Sign in with Google to unlock your routine/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in with google/i })).toBeInTheDocument();
+  });
+
+  it('does not display streak or skin type when user has not completed onboarding', () => {
+    useStore.getState().resetOnboarding();
+
+    const { container: navContainer } = render(
+      <BrowserRouter>
+        <Navbar />
+      </BrowserRouter>
+    );
+    expect(navContainer.querySelector('.fa-flame, [title*="streak"]')).not.toBeInTheDocument();
+    expect(screen.queryByText(/0d streak/i)).not.toBeInTheDocument();
+
+    render(
+      <BrowserRouter>
+        <Today />
+      </BrowserRouter>
+    );
+    expect(screen.queryByText(/combination skin/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/0 Day Streak/i)).not.toBeInTheDocument();
   });
 });

@@ -1,112 +1,95 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  Calendar,
-  Sparkles,
-  Layers,
-  Settings,
-  Flame,
-  ShieldCheck,
-  CheckCircle2,
-} from 'lucide-react';
+import { Flame } from 'lucide-react';
+import { useStore } from '../../store/useStore';
 import { useStreak } from '../../hooks/useStreak';
-import { BotanicalTwig } from '../skincare/SkincareIllustrations';
 
 export const Navbar: React.FC = () => {
+  const profile = useStore((state) => state.profile);
   const { currentStreak, isTodayAmComplete, isTodayPmComplete } = useStreak();
 
   const navItems = [
-    { to: '/today', label: 'Today', icon: Sparkles },
-    { to: '/routine', label: 'Routine', icon: CheckCircle2 },
-    { to: '/week', label: 'Week Plan', icon: Calendar },
-    { to: '/shelf', label: 'Shelf', icon: Layers },
-    { to: '/compatibility', label: 'Checker', icon: ShieldCheck },
-    { to: '/settings', label: 'Profile', icon: Settings },
+    { to: '/today', label: 'Today' },
+    { to: '/routine', label: 'Routine' },
+    { to: '/week', label: 'Week Plan' },
+    { to: '/shelf', label: 'Shelf' },
+    { to: '/compatibility', label: 'Checker' },
+    { to: '/settings', label: 'Profile' },
   ];
 
   return (
     <>
-      {/* Desktop Top Navbar */}
-      <header className="sticky top-0 z-40 bg-ivory/85 backdrop-blur-md border-b border-cream-200/80 px-4 sm:px-8 py-3.5 transition-all">
+      {/* Desktop Top Navbar matching Landing Page */}
+      <header className="sticky top-0 z-40 bg-white/65 backdrop-blur-xl border-b border-white/70 px-4 sm:px-8 py-3.5 transition-all shadow-2xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo & Brand */}
           <NavLink to="/today" className="flex items-center gap-3 group focus:outline-none">
-            <BotanicalTwig className="w-7 h-7 text-sage-600 transition-transform group-hover:rotate-6" />
+            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shadow-2xs group-hover:scale-105 transition-transform">
+              <svg viewBox="0 0 40 40" fill="currentColor" className="w-4.5 h-4.5">
+                <path d="M20 0c1.2 11.5 8.5 18.8 20 20-11.5 1.2-18.8 8.5-20 20-1.2-11.5-8.5-18.8-20-20C11.5 18.8 18.8 11.5 20 0z" />
+              </svg>
+            </div>
             <div className="flex flex-col">
-              <span className="font-editorial text-lg sm:text-xl font-semibold tracking-tight text-cocoa-900 leading-tight">
+              <span className="font-bold text-lg text-cocoa-900 tracking-tight leading-tight">
                 Skincare Journal
               </span>
-              <span className="text-[10px] uppercase tracking-widest text-cocoa-400 font-medium">
+              <span className="text-[10px] uppercase tracking-widest text-cocoa-500 font-semibold">
                 Routine Builder & Planner
               </span>
             </div>
           </NavLink>
 
-          {/* Desktop Links */}
-          <nav className="hidden md:flex items-center gap-1 bg-cream-100/70 p-1.5 rounded-full border border-cream-200">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-rose-500 text-white shadow-sm'
-                        : 'text-cocoa-600 hover:text-cocoa-900 hover:bg-cream-200/60'
-                    }`
-                  }
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
+          {/* Desktop Frosted Links Pill (No icons, matching landing page) */}
+          <nav className="hidden md:flex items-center gap-1.5 bg-white/75 backdrop-blur-md p-1.5 rounded-full border border-white/90 shadow-2xs">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `px-5 py-1.5 rounded-full text-[13.5px] transition-all duration-200 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-[#441F2E] to-[#2D141F] text-white shadow-xs font-semibold'
+                      : 'text-cocoa-500 hover:text-cocoa-900 hover:bg-white/60 font-medium'
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
 
-          {/* Streak Badge & Status */}
-          <div className="flex items-center gap-3">
-            <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
-                currentStreak > 0
-                  ? 'bg-rose-50 text-rose-800 border-rose-200'
-                  : 'bg-cream-100 text-cocoa-500 border-cream-200'
-              }`}
-              title={`${currentStreak} day streak. Today: AM ${isTodayAmComplete ? '✓' : '—'}, PM ${isTodayPmComplete ? '✓' : '—'}`}
-            >
-              <Flame
-                className={`w-4 h-4 ${
-                  currentStreak > 0 ? 'text-rose-500 fill-rose-400 animate-pulse' : 'text-cocoa-400'
-                }`}
-              />
-              <span>{currentStreak}d streak</span>
+          {/* Streak Badge: Only show if user is onboarded AND has an active streak */}
+          {profile.isOnboarded && currentStreak > 0 && (
+            <div className="flex items-center gap-3">
+              <div
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border backdrop-blur-md transition-all bg-white/85 text-rose-800 border-rose-300 shadow-2xs"
+                title={`${currentStreak} day streak. Today: AM ${isTodayAmComplete ? '✓' : '—'}, PM ${isTodayPmComplete ? '✓' : '—'}`}
+              >
+                <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-pulse" />
+                <span>{currentStreak}d streak</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </header>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-ivory/95 backdrop-blur-lg border-t border-cream-200 px-2 py-2 flex items-center justify-around shadow-soft-lg">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl text-[11px] font-medium transition-all ${
-                  isActive
-                    ? 'text-rose-600 font-semibold'
-                    : 'text-cocoa-500 hover:text-cocoa-800'
-                }`
-              }
-            >
-              <Icon className="w-5 h-5" />
-              <span>{item.label}</span>
-            </NavLink>
-          );
-        })}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/85 backdrop-blur-xl border-t border-white/80 px-2 py-2 flex items-center justify-around shadow-soft-lg">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `px-3 py-1.5 rounded-2xl text-[12px] transition-all ${
+                isActive
+                  ? 'bg-gradient-to-r from-[#441F2E] to-[#2D141F] text-white font-semibold shadow-2xs'
+                  : 'text-cocoa-500 hover:text-cocoa-900 font-medium'
+              }`
+            }
+          >
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
       </nav>
     </>
   );

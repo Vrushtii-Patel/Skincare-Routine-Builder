@@ -162,7 +162,7 @@ export type SkinConcern =
   | 'dryness';
 
 export interface Profile {
-  skinType: SkinType;
+  skinType?: SkinType;
   concerns: SkinConcern[];
   sensitive: boolean;
   excludedIngredients: string[];

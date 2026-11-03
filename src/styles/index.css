@@ -4,67 +4,240 @@
 
 @layer base {
   :root {
-    --color-rose: #C496A1;
+    --ink: #3D2630;
+    --muted: #886875;
+    --lilac: #FBE8EE;
+    --hero-bg: #FFF1F4;
+    --light-pink: #F6DCE5;
+    --dusty-rose: #B96F87;
+    --num: #D88FA6;
+
+    --color-rose: #B96F87;
     --color-sage: #919D85;
     --color-lavender: #8E88A3;
-    --color-cream: #EBE1C6;
-    --color-ivory: #FAF7F2;
-    --color-card: #FDFBF7;
-    --color-cocoa: #28221E;
-    --color-cocoa-muted: #5C524C;
+    --color-cream: #F7DDE6;
+    --color-ivory: #FFF1F4;
+    --color-card: rgba(255, 255, 255, 0.82);
+    --color-cocoa: #3D2630;
+    --color-cocoa-muted: #886875;
+  }
+
+  html, body, *, *::before, *::after {
+    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
   body {
-    background-color: var(--color-ivory);
-    color: var(--color-cocoa);
+    background: linear-gradient(180deg, #FFF1F4 0%, #FBE8EE 50%, #FFF5F7 100%) fixed;
+    color: #3D2630;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
   }
 
-  h1, h2, h3, .font-editorial {
-    font-family: 'Playfair Display', Georgia, Cambria, serif;
-    letter-spacing: -0.015em;
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
+  h1, h2, h3, h4, .font-editorial {
+    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+    color: #3D2630;
   }
 }
 
 @layer components {
+  /* Signature Landing-Page Primary CTA Pill */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-rose-500 text-white font-medium shadow-sm hover:bg-rose-600 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:ring-offset-2 focus:ring-offset-ivory disabled:opacity-50 disabled:pointer-events-none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.45rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #441F2E 0%, #2D141F 100%) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 4px 14px rgba(61, 38, 48, 0.22) !important;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease !important;
   }
 
+  .btn-primary:hover {
+    transform: translateY(-1.5px) scale(1.02);
+    box-shadow: 0 8px 20px -2px rgba(61, 38, 48, 0.34) !important;
+    background: linear-gradient(135deg, #532438 0%, #381827 100%) !important;
+  }
+
+  .btn-primary:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 8px rgba(61, 38, 48, 0.2) !important;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    transform: none !important;
+  }
+
+  /* Frosted Glass Secondary Button */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-sage-100 text-sage-900 border border-sage-300 font-medium hover:bg-sage-200 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sage-400 focus:ring-offset-2 focus:ring-offset-ivory disabled:opacity-50 disabled:pointer-events-none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.45rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    background: rgba(255, 255, 255, 0.85);
+    color: #3D2630;
+    border: 1px solid rgba(216, 143, 166, 0.35);
+    box-shadow: 0 2px 8px rgba(61, 38, 48, 0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
 
+  .btn-secondary:hover {
+    background: #FFFFFF;
+    border-color: rgba(216, 143, 166, 0.65);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(61, 38, 48, 0.08);
+  }
+
+  .btn-secondary:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-secondary:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Outline Glass Button */
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-cocoa-200 text-cocoa-800 bg-white/70 hover:bg-white active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-400;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.15rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    background: rgba(255, 255, 255, 0.75);
+    color: #3D2630;
+    border: 1px solid rgba(216, 143, 166, 0.32);
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
 
+  .btn-outline:hover {
+    background: #FFFFFF;
+    border-color: rgba(216, 143, 166, 0.6);
+    transform: translateY(-1px);
+  }
+
+  /* Ghost Button */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-full text-cocoa-600 hover:text-cocoa-900 hover:bg-cream-100 transition-colors duration-150;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    color: #886875;
+    cursor: pointer;
+    transition: all 0.18s ease;
   }
 
+  .btn-ghost:hover {
+    color: #3D2630;
+    background: rgba(246, 220, 229, 0.5);
+  }
+
+  /* Frosted Glass Editorial Card (Landing Page Aesthetic) */
   .card-editorial {
-    @apply bg-card rounded-3xl border border-cream-200/80 shadow-soft transition-all duration-300;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 30px -4px rgba(61, 38, 48, 0.06), 0 2px 8px -1px rgba(61, 38, 48, 0.03);
+    border-radius: 28px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card-editorial:hover {
+    border-color: rgba(216, 143, 166, 0.35);
   }
 
   .card-hover {
-    @apply hover:shadow-soft-lg hover:border-rose-200/90 transition-all duration-300;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px -4px rgba(61, 38, 48, 0.09), 0 4px 12px -2px rgba(61, 38, 48, 0.04);
+    border-color: rgba(216, 143, 166, 0.45);
+  }
+
+  /* Silky Rounded Chips & Badges */
   .badge-sage {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sage-100 text-sage-800 border border-sage-200;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    background: rgba(234, 240, 231, 0.85);
+    color: #33402E;
+    border: 1px solid rgba(166, 184, 154, 0.4);
   }
 
   .badge-rose {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    background: rgba(246, 220, 229, 0.85);
+    color: #3D2630;
+    border: 1px solid rgba(216, 143, 166, 0.45);
   }
 
   .badge-lavender {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-lavender-100 text-lavender-800 border border-lavender-200;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    background: rgba(238, 234, 245, 0.85);
+    color: #3D344E;
+    border: 1px solid rgba(196, 186, 219, 0.45);
   }
 
   .badge-cream {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cream-100 text-cream-900 border border-cream-300;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    background: rgba(250, 248, 243, 0.9);
+    color: #4A3E26;
+    border: 1px solid rgba(235, 225, 198, 0.6);
   }
 }
-

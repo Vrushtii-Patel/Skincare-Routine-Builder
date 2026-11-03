@@ -43,8 +43,7 @@ interface AppState {
 }
 
 const DEFAULT_PROFILE: Profile = {
-  skinType: 'combination',
-  concerns: ['acne', 'barrier'],
+  concerns: [],
   sensitive: false,
   excludedIngredients: [],
   experienceLevel: 'beginner',
@@ -149,8 +148,8 @@ export const useStore = create<AppState>()(
         })),
 
       resetOnboarding: () =>
-        set((state) => ({
-          profile: { ...state.profile, isOnboarded: false },
+        set(() => ({
+          profile: { ...DEFAULT_PROFILE },
         })),
 
       addProduct: (productData) => {

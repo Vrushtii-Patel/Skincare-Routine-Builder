@@ -15,7 +15,10 @@ import { useCloudSync } from './hooks/useCloudSync';
 
 export const App: React.FC = () => {
   const isOnboarded = useStore((state) => state.profile.isOnboarded);
+  const user = useStore((state) => state.user);
   useCloudSync();
+
+  const isAccessAllowed = Boolean(user && isOnboarded);
 
   return (
     <Routes>
@@ -23,7 +26,7 @@ export const App: React.FC = () => {
       <Route
         path="/"
         element={
-          isOnboarded ? <Navigate to="/today" replace /> : <Navigate to="/welcome" replace />
+          isAccessAllowed ? <Navigate to="/today" replace /> : <Navigate to="/welcome" replace />
         }
       />
 
@@ -31,8 +34,12 @@ export const App: React.FC = () => {
       <Route path="/welcome" element={<Welcome />} />
       <Route path="/quiz" element={<Quiz />} />
 
-      {/* Main app wrapped in editorial layout */}
-      <Route element={<AppLayout />}>
+      {/* Main app wrapped in editorial layout: requires sign in and completed onboarding */}
+      <Route
+        element={
+          isAccessAllowed ? <AppLayout /> : <Navigate to="/welcome" replace />
+        }
+      >
         <Route path="/today" element={<Today />} />
         <Route path="/routine" element={<Routine />} />
         <Route path="/shelf" element={<Shelf />} />

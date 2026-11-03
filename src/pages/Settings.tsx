@@ -27,7 +27,7 @@ export const Settings: React.FC = () => {
   const loadSampleData = useStore((state) => state.loadSampleData);
   const { user, loading, error, loginWithGoogle, logout } = useAuth();
 
-  const [skinType, setSkinType] = useState<SkinType>(profile.skinType);
+  const [skinType, setSkinType] = useState<SkinType>(profile.skinType || 'combination');
   const [sensitive, setSensitive] = useState<boolean>(profile.sensitive);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [importStatus, setImportStatus] = useState<{ success: boolean; message: string } | null>(null);

@@ -4,6 +4,14 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Sparkles,
+  ShieldCheck,
+  Sun,
+  Moon,
+  Calendar,
+  Lock,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { SkinType, SkinConcern } from '../types';
@@ -11,6 +19,8 @@ import {
   SensitiveToggleDisclaimer,
   ExcludedIngredientsDisclaimer,
 } from '../components/safety/SafetyNotices';
+import { signInWithGoogleService } from '../services/auth';
+import { isFirebaseConfigured } from '../services/firebase';
 
 const SKIN_TYPES: { type: SkinType; label: string; desc: string }[] = [
   {
@@ -46,24 +56,54 @@ const CONCERNS: { id: SkinConcern; label: string; desc: string }[] = [
   { id: 'dryness', label: 'Dehydration', desc: 'Skin that feels perpetually thirsty and tight.' },
 ];
 
+const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) => (
+  <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="#4285F4"
+      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+    />
+    <path
+      fill="#34A853"
+      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+    />
+    <path
+      fill="#EA4335"
+      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+    />
+  </svg>
+);
+
 export const Quiz: React.FC = () => {
   const navigate = useNavigate();
   const profile = useStore((state) => state.profile);
   const updateProfile = useStore((state) => state.updateProfile);
+  const user = useStore((state) => state.user);
+  const setUser = useStore((state) => state.setUser);
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [skinType, setSkinType] = useState<SkinType>(profile.skinType || 'combination');
-  const [selectedConcerns, setSelectedConcerns] = useState<SkinConcern[]>(profile.concerns || ['acne', 'barrier']);
-  const [sensitive, setSensitive] = useState<boolean>(profile.sensitive || false);
+  const [skinType, setSkinType] = useState<SkinType | null>(
+    profile.isOnboarded ? profile.skinType ?? null : null
+  );
+  const [selectedConcerns, setSelectedConcerns] = useState<SkinConcern[]>(
+    profile.isOnboarded ? profile.concerns : []
+  );
+  const [sensitive, setSensitive] = useState<boolean>(profile.isOnboarded ? profile.sensitive : false);
   const [experience, setExperience] = useState<'beginner' | 'intermediate' | 'experienced'>(
-    profile.experienceLevel || 'beginner'
+    profile.isOnboarded && profile.experienceLevel ? profile.experienceLevel : 'beginner'
   );
   const [excludedIngredients, setExcludedIngredients] = useState<string[]>(
-    profile.excludedIngredients || []
+    profile.isOnboarded ? profile.excludedIngredients : []
   );
   const [pregnancyOrNursing, setPregnancyOrNursing] = useState<boolean>(
-    profile.pregnancyOrNursing || false
+    profile.isOnboarded && profile.pregnancyOrNursing ? profile.pregnancyOrNursing : false
   );
+
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const commonAvoidableIngredients = [
     { id: 'retinol', label: 'Retinol' },
@@ -74,7 +114,9 @@ export const Quiz: React.FC = () => {
     { id: 'sulfur', label: 'Sulfur' },
   ];
 
-  const totalSteps = 5;
+  // Total 6 steps:
+  // 0: Skin Type, 1: Concerns, 2: Sensitivity & Experience, 3: Exclusions, 4: Review & Advisories, 5: Ritual Ready (Google Sign-In)
+  const totalSteps = 6;
 
   const toggleConcern = (concern: SkinConcern) => {
     if (selectedConcerns.includes(concern)) {
@@ -97,18 +139,6 @@ export const Quiz: React.FC = () => {
   const handleNext = () => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
-    } else {
-      // Save and complete
-      updateProfile({
-        skinType,
-        concerns: selectedConcerns,
-        sensitive,
-        experienceLevel: experience,
-        excludedIngredients,
-        pregnancyOrNursing,
-        isOnboarded: true,
-      });
-      navigate('/today');
     }
   };
 
@@ -118,6 +148,66 @@ export const Quiz: React.FC = () => {
     } else {
       navigate('/welcome');
     }
+  };
+
+  // Google Sign-In & Completion Handler
+  const handleGoogleSignIn = async () => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const userSession = await signInWithGoogleService();
+      setUser(userSession);
+      updateProfile({
+        skinType: skinType || 'combination',
+        concerns: selectedConcerns,
+        sensitive,
+        experienceLevel: experience,
+        excludedIngredients,
+        pregnancyOrNursing,
+        isOnboarded: true,
+      });
+      navigate('/today');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Sign-in failed';
+      if (
+        msg.includes('auth/popup-closed-by-user') ||
+        msg.includes('auth/cancelled-popup-request')
+      ) {
+        setAuthError(null);
+      } else {
+        setAuthError(msg);
+      }
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // For users who are already authenticated
+  const handleCompleteSignedIn = () => {
+    updateProfile({
+      skinType: skinType || 'combination',
+      concerns: selectedConcerns,
+      sensitive,
+      experienceLevel: experience,
+      excludedIngredients,
+      pregnancyOrNursing,
+      isOnboarded: true,
+    });
+    navigate('/today');
+  };
+
+  // Safe fallback for dev/test environments without Firebase keys
+  const handleDevBypass = () => {
+    updateProfile({
+      skinType: skinType || 'combination',
+      concerns: selectedConcerns,
+      sensitive,
+      experienceLevel: experience,
+      excludedIngredients,
+      pregnancyOrNursing,
+      isOnboarded: true,
+    });
+    navigate('/today');
   };
 
   return (
@@ -132,7 +222,11 @@ export const Quiz: React.FC = () => {
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </button>
-          <span>Step {currentStep + 1} of {totalSteps}</span>
+          <span>
+            {currentStep === 5
+              ? 'Final Step • Sign In'
+              : `Step ${currentStep + 1} of ${totalSteps}`}
+          </span>
         </div>
 
         <div className="w-full h-1.5 bg-cream-200 rounded-full overflow-hidden">
@@ -331,18 +425,18 @@ export const Quiz: React.FC = () => {
           </div>
         )}
 
-        {/* Step 4: Safety & Review */}
+        {/* Step 4: Profile Review & Health Advisories */}
         {currentStep === 4 && (
           <div className="space-y-4 animate-fade-in">
             <div>
               <span className="text-xs uppercase tracking-widest text-sage-600 font-semibold">
-                Profile Summary
+                Profile Confirmation
               </span>
               <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
-                Your personalized skin profile
+                Review your skin parameters
               </h2>
               <p className="text-xs sm:text-sm text-cocoa-500 mt-1">
-                Review your profile before we build your routines and weekly calendar.
+                Review your profile before we formulate your customized morning and evening routine.
               </p>
             </div>
 
@@ -390,6 +484,180 @@ export const Quiz: React.FC = () => {
           </div>
         )}
 
+        {/* Step 5: Ritual Ready Celebration & Google Sign-In */}
+        {currentStep === 5 && (
+          <div className="space-y-6 animate-fade-in text-center">
+            {/* Header / Celebration */}
+            <div className="space-y-2">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-100 text-rose-600 mb-1 shadow-2xs">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-xs uppercase tracking-widest text-rose-600 font-semibold">
+                  Personal Ritual Ready
+                </span>
+                <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
+                  Your Personal Skin Ritual is Ready
+                </h2>
+                <p className="text-xs sm:text-sm text-cocoa-500 max-w-md mx-auto mt-1 leading-relaxed">
+                  We’ve analyzed your profile and built a science-backed morning and evening routine tailored to your skin barrier.
+                </p>
+              </div>
+            </div>
+
+            {/* Ritual Calibration Summary */}
+            <div className="p-5 rounded-3xl bg-cream-50/80 border border-cream-200/80 space-y-4 text-left">
+              <div className="flex items-center justify-between pb-3 border-b border-cream-200/60">
+                <span className="text-xs font-semibold text-cocoa-800 uppercase tracking-wider">
+                  Calibrated For You
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sage-700 bg-sage-50 px-2.5 py-0.5 rounded-full border border-sage-200">
+                  <ShieldCheck className="w-3.5 h-3.5 text-sage-600" />
+                  Verified Conflict-Free
+                </span>
+              </div>
+
+              {/* Badges */}
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-rose-100/70 text-rose-900 border border-rose-200/70 capitalize">
+                  🌸 {skinType} Skin
+                </span>
+                {selectedConcerns.map((c) => (
+                  <span
+                    key={c}
+                    className="px-3 py-1 rounded-full text-xs font-medium bg-sage-100/70 text-sage-900 border border-sage-200/70 capitalize"
+                  >
+                    🎯 {c.replace('-', ' ')}
+                  </span>
+                ))}
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-lavender-100/70 text-lavender-900 border border-lavender-200/70">
+                  {sensitive ? '🌿 Sensitive Planning Mode' : '⚡ Standard Active Cadence'}
+                </span>
+                <span className="px-3 py-1 rounded-full text-xs font-medium bg-cream-200/70 text-cocoa-800 border border-cream-300/70 capitalize">
+                  {experience} Experience
+                </span>
+                {pregnancyOrNursing && (
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/80">
+                    🤰 Retinoid-Safe Filter Active
+                  </span>
+                )}
+              </div>
+
+              {/* Ritual Features */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-left">
+                <div className="p-3 rounded-2xl bg-white/70 border border-cream-200 text-xs">
+                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-0.5">
+                    <Sun className="w-3.5 h-3.5 text-amber-500" />
+                    <span>AM Defense</span>
+                  </div>
+                  <p className="text-[11px] text-cocoa-500 leading-snug">
+                    Hydration, antioxidant protection & UV barrier
+                  </p>
+                </div>
+                <div className="p-3 rounded-2xl bg-white/70 border border-cream-200 text-xs">
+                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-0.5">
+                    <Moon className="w-3.5 h-3.5 text-lavender-600" />
+                    <span>PM Recovery</span>
+                  </div>
+                  <p className="text-[11px] text-cocoa-500 leading-snug">
+                    Targeted active treatment & lipid barrier renewal
+                  </p>
+                </div>
+                <div className="p-3 rounded-2xl bg-white/70 border border-cream-200 text-xs">
+                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-0.5">
+                    <Calendar className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Weekly Cadence</span>
+                  </div>
+                  <p className="text-[11px] text-cocoa-500 leading-snug">
+                    Rest nights & alternating active cycling
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Sign-In Card */}
+            <div className="p-5 rounded-3xl bg-rose-50/50 border border-rose-200/80 space-y-3.5 text-center">
+              {user ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center gap-2 text-xs text-cocoa-700">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-rose-200 text-rose-800 text-[11px] font-bold flex items-center justify-center">
+                        {(user.displayName || user.email || 'U')[0].toUpperCase()}
+                      </div>
+                    )}
+                    <span>
+                      Signed in as <strong className="text-cocoa-900">{user.displayName || user.email}</strong>
+                    </span>
+                  </div>
+                  <p className="text-xs text-cocoa-500">
+                    Your personalized skin ritual will be securely saved to your account.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleCompleteSignedIn}
+                    className="w-full btn-primary text-sm py-3 justify-center shadow-xs cursor-pointer"
+                  >
+                    <span>Unlock & View My Routine</span>
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-cocoa-800">
+                    <Lock className="w-3.5 h-3.5 text-rose-500" />
+                    <span>Sign in with Google to unlock your routine</span>
+                  </div>
+                  <p className="text-xs text-cocoa-500 max-w-sm mx-auto leading-relaxed">
+                    Connecting your Google account securely saves your custom schedule, shelf products, and skin progress across all your devices.
+                  </p>
+
+                  {authError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs text-left flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                      <span>{authError}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    disabled={authLoading}
+                    className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-2xl bg-white border border-cream-300 text-cocoa-900 font-medium shadow-2xs hover:bg-cream-50 hover:border-cream-400 hover:shadow-xs transition-all disabled:opacity-60 cursor-pointer text-sm"
+                  >
+                    {authLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-rose-500" />
+                        <span>Connecting with Google...</span>
+                      </>
+                    ) : (
+                      <>
+                        <GoogleIcon />
+                        <span>Sign in with Google</span>
+                      </>
+                    )}
+                  </button>
+
+                  {!isFirebaseConfigured() && (
+                    <button
+                      type="button"
+                      onClick={handleDevBypass}
+                      className="text-xs text-cocoa-500 underline hover:text-cocoa-800 pt-1 block mx-auto cursor-pointer"
+                    >
+                      Firebase keys not configured — Continue in local mode
+                    </button>
+                  )}
+
+                  <p className="text-[11px] text-cocoa-400">
+                    Secure authentication via Google Firebase • Zero spam
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-cream-100">
           <button
@@ -399,14 +667,27 @@ export const Quiz: React.FC = () => {
           >
             Back
           </button>
-          <button
-            type="button"
-            onClick={handleNext}
-            className="btn-primary text-xs px-6 py-2.5"
-          >
-            <span>{currentStep === totalSteps - 1 ? 'Complete Setup' : 'Continue'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          {currentStep < totalSteps - 1 && (
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={currentStep === 0 && !skinType}
+              className="btn-primary text-xs px-6 py-2.5 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <span>
+                {currentStep === 0 && !skinType
+                  ? 'Select Skin Type'
+                  : currentStep === totalSteps - 2
+                  ? 'Generate My Ritual'
+                  : 'Continue'}
+              </span>
+              {currentStep === totalSteps - 2 ? (
+                <Sparkles className="w-4 h-4 text-rose-200" />
+              ) : (
+                <ArrowRight className="w-4 h-4" />
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

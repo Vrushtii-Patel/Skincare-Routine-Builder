@@ -95,19 +95,23 @@ export const Today: React.FC = () => {
           </h1>
         </div>
 
-        {/* Profile Attributes Badges */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="badge-sage capitalize font-medium">
-            {profile.skinType} skin
-          </span>
-          {profile.sensitive && (
-            <span className="badge-rose font-medium">Sensitive Mode</span>
-          )}
-          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-cream-100 border border-cream-300 text-xs font-semibold text-cocoa-700">
-            <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-            <span>{currentStreak} Day Streak</span>
+        {/* Profile Attributes Badges: Only shown after onboarding details are completed */}
+        {profile.isOnboarded && profile.skinType && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="badge-sage capitalize font-medium">
+              {profile.skinType} skin
+            </span>
+            {profile.sensitive && (
+              <span className="badge-rose font-medium">Sensitive Mode</span>
+            )}
+            {currentStreak > 0 && (
+              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-cream-100 border border-cream-300 text-xs font-semibold text-cocoa-700">
+                <Flame className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                <span>{currentStreak} Day Streak</span>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Plan Status Notice (if warnings or decisions exist) */}
