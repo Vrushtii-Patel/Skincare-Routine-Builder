@@ -26,7 +26,9 @@ dist-ssr
 *.sw?
 
 # Environment
-# Environment
 .env
 .env.*
 !.env.example
+
+# Scratch and audit scripts
+scratch/

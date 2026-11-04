@@ -18,33 +18,48 @@ interface Keyframe {
 }
 
 const K_DESKTOP: Keyframe[] = [
-  // 1. Hero: Centered lower sweet spot, completely clear of both headline and right description (-14% refined scale)
-  { x: 0.04, y: -0.70, s: 0.54, yaw: 140, pitch: 6,  roll: -4 },
-  // 2. Step 01 (Tell us about your skin): Left-side anchor, aligned vertically with right card (-13% refined scale)
-  { x: -0.40, y:  0.00, s: 0.68, yaw: 125, pitch: 8,  roll:  5 },
-  // 3. Step 02 (Discover your recommendations): Right-side anchor, aligned vertically with left card (unified proportion)
-  { x: 0.40, y:  0.00, s: 0.68, yaw: 40,  pitch: -4, roll: -6 },
-  // 4. Step 03 (Get your daily routine): Left-side anchor, aligned vertically with right card (unified proportion)
-  { x: -0.40, y:  0.00, s: 0.68, yaw: 150, pitch: 6,  roll:  4 },
+  // 1. Hero: Centered harmonic sweet spot, gracefully integrated with cream swirl & right-side copy
+  { x: -0.01, y: -0.40, s: 0.44, yaw: 135, pitch: 8,  roll: -3 },
+  // 2. Step 01 (Tell us about your skin): Left-side anchor, aligned symmetrically with right card
+  { x: -0.28, y:  0.00, s: 0.60, yaw: 125, pitch: 7,  roll:  4 },
+  // 3. Step 02 (Discover your recommendations): Right-side anchor, connected symmetrically with left card
+  { x:  0.28, y:  0.00, s: 0.60, yaw:  45, pitch: -4, roll: -5 },
+  // 4. Step 03 (Get your daily routine): Left-side anchor, aligned symmetrically with right card
+  { x: -0.28, y:  0.00, s: 0.60, yaw: 145, pitch: 6,  roll:  4 },
   // 5. The Science: Refined scale centered in the widened central avenue, clear of card boundaries
-  { x: 0.00, y: -0.02, s: 0.19, yaw: 125, pitch: 5,  roll: -3 },
-  // 6. Final CTA: Framed cleanly on the right, well clear of footer lines (-14% refined scale)
-  { x: 0.38, y:  0.34, s: 0.30, yaw: 115, pitch: 6,  roll: -2 },
+  { x:  0.00, y: -0.02, s: 0.165, yaw: 125, pitch: 5,  roll: -3 },
+  // 6. Final CTA: Refined closing scale framed on the right over the studio pedestal (-20% scale)
+  { x:  0.38, y:  0.34, s: 0.24, yaw: 115, pitch: 6,  roll: -2 },
+];
+
+const K_TABLET: Keyframe[] = [
+  // 1. Hero: Centered sweet spot, comfortably spaced between top headline and bottom CTA
+  { x: 0.00, y: -0.10, s: 0.30, yaw: 140, pitch: 6,  roll: -4 },
+  // 2. Step 01 (Skin Profiling): Scaled to 0 on tablet portrait so centered card & navigation pill have 100% clean clearance
+  { x: 0.00, y: -0.68, s: 0.00, yaw: 125, pitch: 8,  roll:  5 },
+  // 3. Step 02 (Active Compatibility): Scaled to 0
+  { x: 0.00, y: -0.68, s: 0.00, yaw: 40,  pitch: -4, roll: -6 },
+  // 4. Step 03 (Daily Rituals): Scaled to 0
+  { x: 0.00, y: -0.68, s: 0.00, yaw: 150, pitch: 6,  roll:  4 },
+  // 5. The Science: Scaled to 0 so 2-column cards are 100% unobstructed on tablet
+  { x: 0.00, y:  0.00, s: 0.00, yaw: 120, pitch: 5,  roll: -2 },
+  // 6. Final CTA: Scaled to 0 on tablet so centered closing CTA copy has 100% clean legibility
+  { x: 0.00, y:  0.34, s: 0.00, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 const K_MOBILE: Keyframe[] = [
-  // 1. Hero: Centered in open space between top headline and bottom CTA, perfectly clear of text
-  { x: 0.00, y:  0.08, s: 0.24, yaw: 140, pitch: 6,  roll: -4 },
-  // 2. Step 01 (Skin Profiling): Lower half, well clear below the preview card and connector
-  { x: 0.00, y: -0.85, s: 0.19, yaw: 125, pitch: 8,  roll:  5 },
-  // 3. Step 02 (Active Compatibility): Lower half, well clear below the architecture card and connector
-  { x: 0.00, y: -0.85, s: 0.19, yaw: 40,  pitch: -4, roll: -6 },
-  // 4. Step 03 (Daily Rituals): Lower half, cleared below the sequence button on mobile
-  { x: 0.00, y: -0.92, s: 0.18, yaw: 150, pitch: 6,  roll:  4 },
+  // 1. Hero: Centered in sweet spot between top headline and bottom CTA
+  { x: 0.00, y:  0.10, s: 0.22, yaw: 140, pitch: 6,  roll: -4 },
+  // 2. Step 01 (Skin Profiling): Scaled to 0 on phone screens so interactive card & checklist are 100% clean
+  { x: 0.00, y: -0.90, s: 0.00, yaw: 125, pitch: 8,  roll:  5 },
+  // 3. Step 02 (Active Compatibility): Scaled to 0
+  { x: 0.00, y: -0.90, s: 0.00, yaw: 40,  pitch: -4, roll: -6 },
+  // 4. Step 03 (Daily Rituals): Scaled to 0
+  { x: 0.00, y: -0.90, s: 0.00, yaw: 150, pitch: 6,  roll:  4 },
   // 5. The Science: Scaled to 0 so single-column cards are 100% unobstructed on mobile
   { x: 0.00, y:  0.00, s: 0.00, yaw: 120, pitch: 5,  roll: -2 },
-  // 6. Final CTA: Elevated above CTA text, zero footer overlap
-  { x: 0.00, y:  0.36, s: 0.18, yaw: 110, pitch: 4,  roll:  0 },
+  // 6. Final CTA: Positioned elegantly above the closing title
+  { x: 0.00, y:  0.36, s: 0.16, yaw: 110, pitch: 4,  roll:  0 },
 ];
 
 function ease(t: number): number {
@@ -64,8 +79,8 @@ function clamp(v: number, min: number, max: number): number {
   return Math.min(Math.max(v, min), max);
 }
 
-function targetAt(p: number, isMobile: boolean) {
-  const K = isMobile ? K_MOBILE : K_DESKTOP;
+function targetAt(p: number, width: number) {
+  const K = width >= 821 ? K_DESKTOP : width >= 581 ? K_TABLET : K_MOBILE;
   if (!Number.isFinite(p)) p = 0;
   const clampedP = clamp(p, 0, K.length - 1);
   const i = Math.min(K.length - 2, Math.floor(clampedP));
@@ -346,8 +361,7 @@ export const Welcome: React.FC = () => {
       window.addEventListener('resize', onResize);
 
       // State tracking
-      const isMobile = window.innerWidth <= 768;
-      const initialTarget = targetAt(0, isMobile);
+      const initialTarget = targetAt(0, window.innerWidth);
       const cur = {
         x: initialTarget.x,
         y: initialTarget.y,
@@ -390,8 +404,7 @@ export const Welcome: React.FC = () => {
 
         const vh = window.innerHeight || 1;
         const p = computeScrollProgress(vh);
-        const mobile = window.innerWidth <= 768;
-        const target = targetAt(p, mobile);
+        const target = targetAt(p, window.innerWidth);
 
         // Dynamic Science section turn:
         // Perform a smooth 3D showcase turn as user scrolls through the cards,
@@ -519,10 +532,11 @@ export const Welcome: React.FC = () => {
 
       {/* Fixed Navigation */}
       <nav className="nav">
-        <a className="logo" href="#top" aria-label="Home">
-          <svg viewBox="0 0 40 40" fill="currentColor">
+        <a className="logo" href="#top" aria-label="Skincare Ritual">
+          <svg viewBox="0 0 40 40" fill="currentColor" aria-hidden="true">
             <path d="M20 0c1.2 11.5 8.5 18.8 20 20-11.5 1.2-18.8 8.5-20 20-1.2-11.5-8.5-18.8-20-20C11.5 18.8 18.8 11.5 20 0z" />
           </svg>
+          <span className="logo__wordmark">Skincare Ritual</span>
         </a>
         <div className="nav__links">
           <a href="#how-it-works">How It Works</a>
@@ -899,6 +913,13 @@ export const Welcome: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <a href="#science" className="step-sequence-connector reveal d3" aria-label="Explore Dermatological Science">
+              <span>Next: The Science Behind Every Ritual</span>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 3v10M4 9l4 4 4-4" />
+              </svg>
+            </a>
           </div>
         </section>
 

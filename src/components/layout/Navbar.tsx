@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg text-cocoa-900 tracking-tight leading-tight">
-                Skincare Journal
+                Skincare Ritual
               </span>
               <span className="text-[10px] uppercase tracking-widest text-cocoa-500 font-semibold">
                 Routine Builder & Planner
