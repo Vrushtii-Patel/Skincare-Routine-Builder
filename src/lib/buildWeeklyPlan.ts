@@ -193,6 +193,15 @@ export function buildWeeklyPlan(
         ...scheduledIngs.map((k) => {
           const freq = data.frequencies[k];
           if (!freq) return 3;
+          if (profile.skinReactivity === 'easily') {
+            return Math.max(1, (freq.sensitiveNights ?? 2) - 1);
+          }
+          if (profile.skinReactivity === 'sometimes') {
+            return freq.sensitiveNights ?? 2;
+          }
+          if (profile.skinReactivity === 'rarely') {
+            return freq.normalNights ?? 3;
+          }
           return profile.sensitive ? freq.sensitiveNights ?? 2 : freq.normalNights ?? 3;
         })
       );

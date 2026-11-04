@@ -45,6 +45,7 @@ interface AppState {
 const DEFAULT_PROFILE: Profile = {
   concerns: [],
   sensitive: false,
+  skinReactivity: 'rarely',
   excludedIngredients: [],
   experienceLevel: 'beginner',
   pregnancyOrNursing: false,

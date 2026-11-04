@@ -102,7 +102,9 @@ export const Today: React.FC = () => {
               {profile.skinType} skin
             </span>
             {profile.sensitive && (
-              <span className="badge-rose font-medium">Sensitive Mode</span>
+              <span className="badge-rose font-medium">
+                {profile.skinReactivity === 'easily' ? 'Ultra-Gentle Mode' : 'Sensitive Mode'}
+              </span>
             )}
             {currentStreak > 0 && (
               <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-cream-100 border border-cream-300 text-xs font-semibold text-cocoa-700">
@@ -320,8 +322,8 @@ export const Today: React.FC = () => {
               onClick={() => handleFeelSelect(feel.id)}
               className={`p-3 rounded-2xl border text-center transition-all ${
                 selectedFeel === feel.id
-                  ? 'bg-rose-100/80 border-rose-400 text-rose-950 font-semibold shadow-2xs'
-                  : 'bg-white/80 border-cream-200 text-cocoa-700 hover:bg-cream-50'
+                  ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 text-lavender-950 font-semibold shadow-2xs'
+                  : 'bg-white/80 border-cream-200 text-cocoa-700 hover:border-cream-300 hover:bg-cream-50'
               }`}
             >
               <span className="text-lg block mb-0.5">{feel.emoji}</span>

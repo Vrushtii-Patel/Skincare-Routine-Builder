@@ -17,49 +17,50 @@ interface Keyframe {
   roll: number;
 }
 
+
 const K_DESKTOP: Keyframe[] = [
   // 1. Hero: Centered harmonic sweet spot, gracefully integrated with cream swirl & right-side copy
-  { x: -0.01, y: -0.40, s: 0.44, yaw: 135, pitch: 8,  roll: -3 },
+  { x: -0.01, y: -0.40, s: 0.44, yaw: 135, pitch: 8, roll: -3 },
   // 2. Step 01 (Tell us about your skin): Left-side anchor, aligned symmetrically with right card
-  { x: -0.28, y:  0.00, s: 0.60, yaw: 125, pitch: 7,  roll:  4 },
+  { x: -0.28, y: 0.00, s: 0.60, yaw: 125, pitch: 7, roll: 4 },
   // 3. Step 02 (Discover your recommendations): Right-side anchor, connected symmetrically with left card
-  { x:  0.28, y:  0.00, s: 0.60, yaw:  45, pitch: -4, roll: -5 },
+  { x: 0.28, y: 0.00, s: 0.60, yaw: 45, pitch: -4, roll: -5 },
   // 4. Step 03 (Get your daily routine): Left-side anchor, aligned symmetrically with right card
-  { x: -0.28, y:  0.00, s: 0.60, yaw: 145, pitch: 6,  roll:  4 },
+  { x: -0.28, y: 0.00, s: 0.60, yaw: 145, pitch: 6, roll: 4 },
   // 5. The Science: Refined scale centered in the widened central avenue, clear of card boundaries
-  { x:  0.00, y: -0.02, s: 0.165, yaw: 125, pitch: 5,  roll: -3 },
+  { x: 0.00, y: -0.02, s: 0.165, yaw: 125, pitch: 5, roll: -3 },
   // 6. Final CTA: Refined closing scale framed on the right over the studio pedestal (-20% scale)
-  { x:  0.38, y:  0.34, s: 0.24, yaw: 115, pitch: 6,  roll: -2 },
+  { x: 0.38, y: 0.34, s: 0.24, yaw: 115, pitch: 6, roll: -2 },
 ];
 
 const K_TABLET: Keyframe[] = [
   // 1. Hero: Centered sweet spot, comfortably spaced between top headline and bottom CTA
-  { x: 0.00, y: -0.10, s: 0.30, yaw: 140, pitch: 6,  roll: -4 },
+  { x: 0.00, y: -0.10, s: 0.30, yaw: 140, pitch: 6, roll: -4 },
   // 2. Step 01 (Skin Profiling): Scaled to 0 on tablet portrait so centered card & navigation pill have 100% clean clearance
-  { x: 0.00, y: -0.68, s: 0.00, yaw: 125, pitch: 8,  roll:  5 },
+  { x: 0.00, y: -0.68, s: 0.00, yaw: 125, pitch: 8, roll: 5 },
   // 3. Step 02 (Active Compatibility): Scaled to 0
-  { x: 0.00, y: -0.68, s: 0.00, yaw: 40,  pitch: -4, roll: -6 },
+  { x: 0.00, y: -0.68, s: 0.00, yaw: 40, pitch: -4, roll: -6 },
   // 4. Step 03 (Daily Rituals): Scaled to 0
-  { x: 0.00, y: -0.68, s: 0.00, yaw: 150, pitch: 6,  roll:  4 },
+  { x: 0.00, y: -0.68, s: 0.00, yaw: 150, pitch: 6, roll: 4 },
   // 5. The Science: Scaled to 0 so 2-column cards are 100% unobstructed on tablet
-  { x: 0.00, y:  0.00, s: 0.00, yaw: 120, pitch: 5,  roll: -2 },
+  { x: 0.00, y: 0.00, s: 0.00, yaw: 120, pitch: 5, roll: -2 },
   // 6. Final CTA: Scaled to 0 on tablet so centered closing CTA copy has 100% clean legibility
-  { x: 0.00, y:  0.34, s: 0.00, yaw: 110, pitch: 4,  roll:  0 },
+  { x: 0.00, y: 0.34, s: 0.00, yaw: 110, pitch: 4, roll: 0 },
 ];
 
 const K_MOBILE: Keyframe[] = [
   // 1. Hero: Centered in sweet spot between top headline and bottom CTA
-  { x: 0.00, y:  0.10, s: 0.22, yaw: 140, pitch: 6,  roll: -4 },
+  { x: 0.00, y: 0.10, s: 0.22, yaw: 140, pitch: 6, roll: -4 },
   // 2. Step 01 (Skin Profiling): Scaled to 0 on phone screens so interactive card & checklist are 100% clean
-  { x: 0.00, y: -0.90, s: 0.00, yaw: 125, pitch: 8,  roll:  5 },
+  { x: 0.00, y: -0.90, s: 0.00, yaw: 125, pitch: 8, roll: 5 },
   // 3. Step 02 (Active Compatibility): Scaled to 0
-  { x: 0.00, y: -0.90, s: 0.00, yaw: 40,  pitch: -4, roll: -6 },
+  { x: 0.00, y: -0.90, s: 0.00, yaw: 40, pitch: -4, roll: -6 },
   // 4. Step 03 (Daily Rituals): Scaled to 0
-  { x: 0.00, y: -0.90, s: 0.00, yaw: 150, pitch: 6,  roll:  4 },
+  { x: 0.00, y: -0.90, s: 0.00, yaw: 150, pitch: 6, roll: 4 },
   // 5. The Science: Scaled to 0 so single-column cards are 100% unobstructed on mobile
-  { x: 0.00, y:  0.00, s: 0.00, yaw: 120, pitch: 5,  roll: -2 },
+  { x: 0.00, y: 0.00, s: 0.00, yaw: 120, pitch: 5, roll: -2 },
   // 6. Final CTA: Positioned elegantly above the closing title
-  { x: 0.00, y:  0.36, s: 0.16, yaw: 110, pitch: 4,  roll:  0 },
+  { x: 0.00, y: 0.36, s: 0.16, yaw: 110, pitch: 4, roll: 0 },
 ];
 
 function ease(t: number): number {

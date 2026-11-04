@@ -363,5 +363,70 @@ describe('Scheduling Engine Suite (buildWeeklyPlan)', () => {
     expect(plan.warnings).toHaveLength(0);
     expect(plan.decisions).toHaveLength(0);
   });
+
+  it('correctly adapts active frequency for the three reactivity levels (rarely, sometimes, easily)', () => {
+    const singleRetinol: Product[] = [
+      {
+        id: 'retinol-test',
+        name: 'Retinol Test',
+        type: 'serum',
+        ingredients: ['retinol'],
+        productForm: 'leave-on',
+        openedOn: '2026-10-01',
+        monthsValid: 6,
+        bottle: 'dropper',
+        color: '#C496A1',
+        isCombinationProduct: false,
+      },
+    ];
+
+    // 1. Rarely reacts: standard 3 nights
+    const planRarely = buildWeeklyPlan(
+      singleRetinol,
+      {
+        skinType: 'normal',
+        concerns: ['acne'],
+        sensitive: false,
+        skinReactivity: 'rarely',
+        excludedIngredients: [],
+        isOnboarded: true,
+      },
+      data
+    );
+    const rarelyNights = Object.values(planRarely.grid.PM).filter((slot) => slot.includes('retinol-test')).length;
+    expect(rarelyNights).toBe(3);
+
+    // 2. Sometimes reacts: sensitive 2 nights
+    const planSometimes = buildWeeklyPlan(
+      singleRetinol,
+      {
+        skinType: 'normal',
+        concerns: ['acne'],
+        sensitive: true,
+        skinReactivity: 'sometimes',
+        excludedIngredients: [],
+        isOnboarded: true,
+      },
+      data
+    );
+    const sometimesNights = Object.values(planSometimes.grid.PM).filter((slot) => slot.includes('retinol-test')).length;
+    expect(sometimesNights).toBe(2);
+
+    // 3. Reacts easily: ultra-gentle 1 night
+    const planEasily = buildWeeklyPlan(
+      singleRetinol,
+      {
+        skinType: 'normal',
+        concerns: ['acne'],
+        sensitive: true,
+        skinReactivity: 'easily',
+        excludedIngredients: [],
+        isOnboarded: true,
+      },
+      data
+    );
+    const easilyNights = Object.values(planEasily.grid.PM).filter((slot) => slot.includes('retinol-test')).length;
+    expect(easilyNights).toBe(1);
+  });
 });
 

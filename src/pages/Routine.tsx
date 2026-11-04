@@ -136,7 +136,7 @@ export const Routine: React.FC = () => {
               className={`p-5 rounded-3xl border transition-all ${
                 isGap
                   ? 'bg-cream-50/60 border-dashed border-cream-300'
-                  : 'bg-card border-cream-200 shadow-soft hover:border-rose-200'
+                  : 'bg-card border-cream-200 shadow-soft hover:border-cream-300 hover:bg-cream-50'
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

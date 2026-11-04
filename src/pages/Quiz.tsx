@@ -12,13 +12,13 @@ import {
   Lock,
   AlertCircle,
   Loader2,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { SkinType, SkinConcern } from '../types';
-import {
-  SensitiveToggleDisclaimer,
-  ExcludedIngredientsDisclaimer,
-} from '../components/safety/SafetyNotices';
+import { SkinType, SkinConcern, SkinReactivity } from '../types';
+import { Modal } from '../components/ui/Modal';
 import { signInWithGoogleService } from '../services/auth';
 import { isFirebaseConfigured } from '../services/firebase';
 
@@ -26,34 +26,34 @@ const SKIN_TYPES: { type: SkinType; label: string; desc: string }[] = [
   {
     type: 'normal',
     label: 'Balanced / Normal',
-    desc: 'Neither too oily nor overly dry. Generally tolerates most active ingredients well.',
+    desc: 'My skin generally feels comfortable, without excessive oiliness or dryness.',
   },
   {
     type: 'dry',
     label: 'Dry',
-    desc: 'Prone to tightness, flakiness, or lack of natural sebum. Needs hydrating humectants and barrier lipids.',
+    desc: 'My skin often feels tight, rough, or flaky.',
   },
   {
     type: 'oily',
     label: 'Oily',
-    desc: 'Excess sebum across the face. Benefits from gentle cleansing, BHA, and lightweight hydrators.',
+    desc: 'My face tends to look shiny or feel greasy throughout the day.',
   },
   {
     type: 'combination',
     label: 'Combination',
-    desc: 'Oily T-zone (forehead, nose, chin) with normal or dry cheeks. Requires balanced layering.',
+    desc: 'My forehead and nose get oily, while my cheeks stay normal or dry.',
   },
 ];
 
 const CONCERNS: { id: SkinConcern; label: string; desc: string }[] = [
-  { id: 'acne', label: 'Blemishes & Breakouts', desc: 'Active pimples, blackheads, or clogged pores.' },
-  { id: 'barrier', label: 'Barrier Support', desc: 'Sensitized, tight, or compromised moisture barrier.' },
-  { id: 'hyperpigmentation', label: 'Uneven Tone & Dark Spots', desc: 'Post-acne marks or sun-induced discoloration.' },
-  { id: 'aging', label: 'Fine Lines & Firmness', desc: 'Early signs of expression lines or loss of elasticity.' },
-  { id: 'texture', label: 'Rough Texture', desc: 'Uneven skin feel requiring gentle chemical exfoliation.' },
-  { id: 'redness', label: 'Redness & Irritation', desc: 'Easily flushed or reactive complexion.' },
-  { id: 'dullness', label: 'Dullness & Glow', desc: 'Lack of radiance, tired or fatigued appearance.' },
-  { id: 'dryness', label: 'Dehydration', desc: 'Skin that feels perpetually thirsty and tight.' },
+  { id: 'acne', label: 'Breakouts & clogged pores', desc: 'Pimples, blackheads, or frequent breakouts.' },
+  { id: 'barrier', label: 'Skin barrier support', desc: 'Skin that feels irritated, tight, or easily uncomfortable.' },
+  { id: 'hyperpigmentation', label: 'Dark spots & uneven tone', desc: 'Post-breakout marks or uneven pigmentation.' },
+  { id: 'aging', label: 'Fine lines & skin firmness', desc: 'Early visible lines or changes in skin firmness.' },
+  { id: 'texture', label: 'Rough or uneven texture', desc: 'Skin that feels bumpy or uneven.' },
+  { id: 'redness', label: 'Redness & sensitivity', desc: 'Skin that frequently looks flushed or feels irritated.' },
+  { id: 'dullness', label: 'Dullness & radiance', desc: 'Skin that looks tired or lacks radiance.' },
+  { id: 'dryness', label: 'Dehydrated skin', desc: 'Skin that feels tight or lacks moisture, even if oily.' },
 ];
 
 const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) => (
@@ -92,6 +92,13 @@ export const Quiz: React.FC = () => {
     profile.isOnboarded ? profile.concerns : []
   );
   const [sensitive, setSensitive] = useState<boolean>(profile.isOnboarded ? profile.sensitive : false);
+  const [skinReactivity, setSkinReactivity] = useState<SkinReactivity>(
+    profile.isOnboarded && profile.skinReactivity
+      ? profile.skinReactivity
+      : profile.sensitive
+      ? 'sometimes'
+      : 'rarely'
+  );
   const [experience, setExperience] = useState<'beginner' | 'intermediate' | 'experienced'>(
     profile.isOnboarded && profile.experienceLevel ? profile.experienceLevel : 'beginner'
   );
@@ -104,14 +111,58 @@ export const Quiz: React.FC = () => {
 
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isSkinGuideOpen, setIsSkinGuideOpen] = useState(false);
+  const [expandedIngredients, setExpandedIngredients] = useState<string[]>([]);
+
+  const toggleExpandedIngredient = (id: string) => {
+    setExpandedIngredients((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
 
   const commonAvoidableIngredients = [
-    { id: 'retinol', label: 'Retinol' },
-    { id: 'benzoyl-peroxide', label: 'Benzoyl Peroxide' },
-    { id: 'salicylic-acid', label: 'Salicylic Acid (BHA)' },
-    { id: 'glycolic-acid', label: 'Glycolic Acid (AHA)' },
-    { id: 'colloidal-oatmeal', label: 'Colloidal Oatmeal (Oat allergy)' },
-    { id: 'sulfur', label: 'Sulfur' },
+    {
+      id: 'retinol',
+      label: 'Retinol',
+      desc: 'A vitamin A ingredient commonly used in skincare for acne and visible signs of aging.',
+      preferenceReasons: 'Already using prescription retinoids, experiencing peeling/dryness, or personal preference to avoid active retinoids.',
+      allergyNote: 'Exclude if pregnant or nursing without clinician approval. True contact allergy is rare; irritation is more common.',
+    },
+    {
+      id: 'benzoyl-peroxide',
+      label: 'Benzoyl Peroxide',
+      desc: 'An antibacterial ingredient commonly used to target and prevent acne breakouts.',
+      preferenceReasons: 'Skin prone to dryness and peeling, or wanting to prevent fabric and towel bleaching.',
+      allergyNote: 'True allergic contact dermatitis can occur (severe itching, swelling, or hives). Discontinue if experienced.',
+    },
+    {
+      id: 'salicylic-acid',
+      label: 'Salicylic Acid (BHA)',
+      desc: 'An exfoliating ingredient commonly used for clogged pores and acne-prone skin.',
+      preferenceReasons: 'Skin prone to over-drying, or already using sufficient clarifying treatments in your routine.',
+      allergyNote: 'Avoid if you have a known allergy or sensitivity to aspirin or other salicylates.',
+    },
+    {
+      id: 'glycolic-acid',
+      label: 'Glycolic Acid (AHA)',
+      desc: 'An alpha-hydroxy acid commonly used to exfoliate skin surface texture and dullness.',
+      preferenceReasons: 'Sensitized moisture barrier that easily stings, or currently focusing on barrier repair over resurfacing.',
+      allergyNote: 'Primarily causes irritation rather than true allergy; avoid on compromised, peeling, or sunburned skin.',
+    },
+    {
+      id: 'colloidal-oatmeal',
+      label: 'Colloidal Oatmeal',
+      desc: 'A soothing ingredient derived from finely ground oats, commonly used to calm dry or irritated skin.',
+      preferenceReasons: 'Personal preference for lightweight gel formulas or non-oat moisturiser textures.',
+      allergyNote: 'Avoid if you have a diagnosed oat allergy, grain allergy, or severe contact sensitivity.',
+    },
+    {
+      id: 'sulfur',
+      label: 'Sulfur',
+      desc: 'A mineral ingredient commonly used in clarifying treatments for blemishes and oily skin.',
+      preferenceReasons: 'Preference to avoid distinct mineral scents, or skin prone to over-drying with clarifying minerals.',
+      allergyNote: 'Avoid if you have a known contact allergy or diagnosed sensitivity to topical sulfur products.',
+    },
   ];
 
   // Total 6 steps:
@@ -161,6 +212,7 @@ export const Quiz: React.FC = () => {
         skinType: skinType || 'combination',
         concerns: selectedConcerns,
         sensitive,
+        skinReactivity,
         experienceLevel: experience,
         excludedIngredients,
         pregnancyOrNursing,
@@ -188,6 +240,7 @@ export const Quiz: React.FC = () => {
       skinType: skinType || 'combination',
       concerns: selectedConcerns,
       sensitive,
+      skinReactivity,
       experienceLevel: experience,
       excludedIngredients,
       pregnancyOrNursing,
@@ -202,6 +255,7 @@ export const Quiz: React.FC = () => {
       skinType: skinType || 'combination',
       concerns: selectedConcerns,
       sensitive,
+      skinReactivity,
       experienceLevel: experience,
       excludedIngredients,
       pregnancyOrNursing,
@@ -247,11 +301,22 @@ export const Quiz: React.FC = () => {
                 Foundation
               </span>
               <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
-                How would you describe your skin?
+                How does your skin usually feel throughout the day?
               </h2>
-              <p className="text-xs sm:text-sm text-cocoa-500 mt-1">
-                Your general skin type helps calibrate hydration and texture preferences.
+              <p className="text-xs sm:text-sm text-cocoa-500 mt-1 leading-relaxed">
+                Think about how your skin feels a few hours after washing it, before applying skincare.
               </p>
+              <div className="mt-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsSkinGuideOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-lavender-700 hover:text-lavender-900 underline underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-lavender-400 focus:ring-offset-1 rounded-sm"
+                  aria-label="Not sure? Learn how to identify your skin type"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                  <span>Not sure? Learn how to identify your skin type.</span>
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -264,13 +329,13 @@ export const Quiz: React.FC = () => {
                     onClick={() => setSkinType(st.type)}
                     className={`p-4 rounded-2xl text-left border transition-all ${
                       isSelected
-                        ? 'bg-rose-50/80 border-rose-400 ring-1 ring-rose-400 shadow-2xs'
+                        ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
                         : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-sm text-cocoa-900">{st.label}</span>
-                      {isSelected && <Check className="w-4 h-4 text-rose-600 stroke-[3]" />}
+                      {isSelected && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
                     </div>
                     <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">{st.desc}</p>
                   </button>
@@ -284,36 +349,49 @@ export const Quiz: React.FC = () => {
         {currentStep === 1 && (
           <div className="space-y-4 animate-fade-in">
             <div>
-              <span className="text-xs uppercase tracking-widest text-sage-600 font-semibold">
-                Goals
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest text-rose-600 font-semibold">
+                  Goals
+                </span>
+                <span
+                  className={`text-[11px] sm:text-xs font-medium whitespace-nowrap transition-colors ${
+                    selectedConcerns.length === 3 ? 'text-rose-700 font-semibold' : 'text-cocoa-600'
+                  }`}
+                  aria-live="polite"
+                >
+                  Choose up to 3 concerns · {selectedConcerns.length}/3 selected
+                </span>
+              </div>
               <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
-                What are your main skincare focuses?
+                What would you like your skincare routine to help with?
               </h2>
-              <p className="text-xs sm:text-sm text-cocoa-500 mt-1">
-                Select up to 3 concerns you would like your routine to target.
+              <p className="text-xs sm:text-sm text-cocoa-500 mt-1 leading-relaxed whitespace-nowrap">
+                Choose up to 3 concerns. Pick the ones that matter most to you.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               {CONCERNS.map((c) => {
                 const isSelected = selectedConcerns.includes(c.id);
+                const isMaxReached = selectedConcerns.length >= 3 && !isSelected;
                 return (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => toggleConcern(c.id)}
-                    className={`p-3.5 rounded-2xl text-left border transition-all ${
+                    className={`p-4 rounded-2xl text-left border transition-all ${
                       isSelected
-                        ? 'bg-sage-50/80 border-sage-400 ring-1 ring-sage-400 shadow-2xs'
+                        ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
+                        : isMaxReached
+                        ? 'bg-white/60 border-cream-200/70 opacity-75 hover:opacity-100 hover:border-cream-300 hover:bg-cream-50 cursor-pointer'
                         : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-sm text-cocoa-900">{c.label}</span>
-                      {isSelected && <Check className="w-4 h-4 text-sage-600 stroke-[3]" />}
+                      {isSelected && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
                     </div>
-                    <p className="text-xs text-cocoa-500 mt-1">{c.desc}</p>
+                    <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">{c.desc}</p>
                   </button>
                 );
               })}
@@ -321,61 +399,136 @@ export const Quiz: React.FC = () => {
           </div>
         )}
 
-        {/* Step 2: Skin Sensitivity */}
+        {/* Step 2: Skin Reactivity & Ingredient Experience */}
         {currentStep === 2 && (
-          <div className="space-y-5 animate-fade-in">
-            <div>
-              <span className="text-xs uppercase tracking-widest text-lavender-600 font-semibold">
-                Tolerability
-              </span>
-              <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
-                Does your skin lean sensitive?
-              </h2>
-              <p className="text-xs sm:text-sm text-cocoa-500 mt-1">
-                Enabling sensitive mode automatically applies conservative frequency defaults (e.g. fewer active nights per week).
-              </p>
+          <div className="space-y-6 animate-fade-in">
+            {/* Question A: How easily does your skin react? */}
+            <div className="space-y-3">
+              <div>
+                <span className="text-xs uppercase tracking-widest text-rose-600 font-semibold">
+                  Skin Reactivity
+                </span>
+                <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
+                  How does your skin usually react to skincare products?
+                </h2>
+                <p className="text-xs sm:text-sm text-cocoa-500 mt-1 leading-relaxed">
+                  Choose the option that feels closest to your experience. This isn't a diagnosis.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSkinReactivity('rarely');
+                    setSensitive(false);
+                  }}
+                  className={`p-4 rounded-2xl text-left border transition-all ${
+                    skinReactivity === 'rarely'
+                      ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
+                      : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm text-cocoa-900">Rarely reacts</span>
+                    {skinReactivity === 'rarely' && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
+                  </div>
+                  <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">
+                    Most products feel comfortable on my skin.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSkinReactivity('sometimes');
+                    setSensitive(true);
+                  }}
+                  className={`p-4 rounded-2xl text-left border transition-all ${
+                    skinReactivity === 'sometimes'
+                      ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
+                      : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm text-cocoa-900">Sometimes reacts</span>
+                    {skinReactivity === 'sometimes' && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
+                  </div>
+                  <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">
+                    Certain products cause irritation or redness.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSkinReactivity('easily');
+                    setSensitive(true);
+                  }}
+                  className={`p-4 rounded-2xl text-left border transition-all ${
+                    skinReactivity === 'easily'
+                      ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
+                      : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm text-cocoa-900">Reacts easily</span>
+                    {skinReactivity === 'easily' && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
+                  </div>
+                  <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">
+                    My skin frequently feels irritated or uncomfortable.
+                  </p>
+                </button>
+              </div>
             </div>
 
-            <div className="p-4 rounded-3xl bg-cream-50 border border-cream-200 space-y-3">
-              <label className="flex items-center justify-between cursor-pointer">
-                <div>
-                  <span className="font-semibold text-sm text-cocoa-900">
-                    Apply gentle/sensitive planning defaults
-                  </span>
-                  <SensitiveToggleDisclaimer />
-                </div>
-                <input
-                  type="checkbox"
-                  checked={sensitive}
-                  onChange={(e) => setSensitive(e.target.checked)}
-                  className="w-5 h-5 rounded text-rose-500 focus:ring-rose-400 border-cream-300"
-                />
-              </label>
-            </div>
+            {/* Question B: Active Ingredient Familiarity */}
+            <div className="pt-2 border-t border-cream-100 space-y-3">
+              <div>
+                <span className="text-xs uppercase tracking-widest text-rose-600 font-semibold">
+                  Ingredient Experience
+                </span>
+                <h3 className="font-editorial text-xl sm:text-2xl font-semibold text-cocoa-900 mt-1">
+                  How familiar are you with skincare ingredients like retinol and exfoliating acids?
+                </h3>
+                <p className="text-xs sm:text-sm text-cocoa-500 mt-1 leading-relaxed">
+                  Helps pace your active introduction and weekly routine cadence.
+                </p>
+              </div>
 
-            {/* Experience level */}
-            <div className="pt-3">
-              <label className="block text-xs font-semibold text-cocoa-800 mb-2">
-                Your familiarity with active ingredients:
-              </label>
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                 {([
-                  { id: 'beginner', label: 'Beginner', desc: 'New to acids & retinoids' },
-                  { id: 'intermediate', label: 'Familiar', desc: 'Uses actives 2-3x/week' },
-                  { id: 'experienced', label: 'Experienced', desc: 'Established tolerance' },
+                  {
+                    id: 'beginner',
+                    label: 'Beginner',
+                    desc: "I've never used them or have very little experience.",
+                  },
+                  {
+                    id: 'intermediate',
+                    label: 'Some experience',
+                    desc: "I've used them occasionally.",
+                  },
+                  {
+                    id: 'experienced',
+                    label: 'Experienced',
+                    desc: 'I use them regularly and generally tolerate them.',
+                  },
                 ] as const).map((exp) => (
                   <button
                     key={exp.id}
                     type="button"
                     onClick={() => setExperience(exp.id)}
-                    className={`p-3 rounded-2xl text-center border transition-all ${
+                    className={`p-4 rounded-2xl text-left border transition-all ${
                       experience === exp.id
-                        ? 'bg-rose-50 border-rose-300 text-rose-950 font-medium'
-                        : 'bg-white border-cream-200 text-cocoa-600 hover:bg-cream-50'
+                        ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
+                        : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
                     }`}
                   >
-                    <div className="text-xs font-semibold">{exp.label}</div>
-                    <div className="text-[10px] text-cocoa-400 mt-0.5">{exp.desc}</div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm text-cocoa-900">{exp.label}</span>
+                      {experience === exp.id && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
+                    </div>
+                    <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">{exp.desc}</p>
                   </button>
                 ))}
               </div>
@@ -393,32 +546,80 @@ export const Quiz: React.FC = () => {
               <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
                 Are there any ingredients you prefer to avoid?
               </h2>
-              <ExcludedIngredientsDisclaimer />
+              <p className="text-xs sm:text-sm text-cocoa-500 mt-1 leading-relaxed">
+                Select ingredients you already know you want to avoid. We'll exclude them from your suggested routine where possible.
+              </p>
+              <div className="mt-2 text-xs text-cocoa-400 flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-cocoa-400 shrink-0" />
+                <span>Exclusion is based on your preference and does not replace clinical allergy diagnosis.</span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               {commonAvoidableIngredients.map((item) => {
                 const isSelected = excludedIngredients.includes(item.id);
+                const isExpanded = expandedIngredients.includes(item.id);
                 return (
-                  <button
+                  <div
                     key={item.id}
-                    type="button"
-                    onClick={() => toggleExcluded(item.id)}
-                    className={`p-3 rounded-2xl text-left border flex items-center justify-between transition-all ${
+                    className={`p-4 rounded-2xl border transition-all text-left flex flex-col justify-between ${
                       isSelected
-                        ? 'bg-rose-50 border-rose-300 text-rose-900 font-medium'
-                        : 'bg-white border-cream-200 text-cocoa-700 hover:bg-cream-50'
+                        ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
+                        : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
                     }`}
                   >
-                    <span className="text-xs font-medium">{item.label}</span>
-                    <div
-                      className={`w-4 h-4 rounded-full flex items-center justify-center border text-[10px] ${
-                        isSelected ? 'bg-rose-500 border-rose-500 text-white' : 'border-cocoa-300'
-                      }`}
+                    <button
+                      type="button"
+                      onClick={() => toggleExcluded(item.id)}
+                      className="cursor-pointer focus:outline-none flex-1 text-left w-full"
                     >
-                      {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-sm text-cocoa-900">{item.label}</span>
+                        {isSelected && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
+                      </div>
+                      <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">{item.desc}</p>
+                    </button>
+
+                    <div className="mt-3 pt-2.5 border-t border-cream-100/90">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExpandedIngredient(item.id);
+                        }}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-lavender-700 hover:text-lavender-900 focus:outline-none transition-colors cursor-pointer"
+                        aria-expanded={isExpanded}
+                      >
+                        <span>{isExpanded ? 'Hide details' : 'Learn more'}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="mt-2.5 p-3 rounded-xl bg-white/95 border border-cream-200/90 text-xs space-y-2 animate-fade-in shadow-2xs">
+                          <div>
+                            <span className="font-semibold text-cocoa-900 block text-[11px] uppercase tracking-wider mb-0.5">
+                              Why people avoid it
+                            </span>
+                            <p className="text-cocoa-600 leading-relaxed text-[11.5px]">
+                              {item.preferenceReasons}
+                            </p>
+                          </div>
+                          <div className="pt-2 border-t border-cream-100">
+                            <span className="font-semibold text-amber-900 block text-[11px] uppercase tracking-wider mb-0.5">
+                              Allergy & Intolerance note
+                            </span>
+                            <p className="text-amber-800 leading-relaxed text-[11.5px]">
+                              {item.allergyNote}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -429,58 +630,136 @@ export const Quiz: React.FC = () => {
         {currentStep === 4 && (
           <div className="space-y-4 animate-fade-in">
             <div>
-              <span className="text-xs uppercase tracking-widest text-sage-600 font-semibold">
+              <span className="text-xs uppercase tracking-widest text-rose-600 font-semibold">
                 Profile Confirmation
               </span>
               <h2 className="font-editorial text-2xl sm:text-3xl font-semibold text-cocoa-900 mt-1">
                 Review your skin parameters
               </h2>
-              <p className="text-xs sm:text-sm text-cocoa-500 mt-1">
+              <p className="text-xs sm:text-sm text-cocoa-500 mt-1 leading-relaxed">
                 Review your profile before we formulate your customized morning and evening routine.
               </p>
             </div>
 
-            <div className="p-4 rounded-3xl bg-cream-50 border border-cream-200 space-y-3">
-              <div className="flex items-center justify-between text-xs pb-2 border-b border-cream-200">
-                <span className="text-cocoa-500">Skin Type</span>
-                <span className="font-semibold text-cocoa-900 capitalize">{skinType}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs pb-2 border-b border-cream-200">
-                <span className="text-cocoa-500">Focus Areas</span>
-                <span className="font-semibold text-cocoa-900">
-                  {selectedConcerns.map((c) => c.replace('-', ' ')).join(', ')}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs pb-2 border-b border-cream-200">
-                <span className="text-cocoa-500">Sensitivity Preference</span>
-                <span className="font-semibold text-cocoa-900">
-                  {sensitive ? 'Gentle Planning Defaults' : 'Standard OTC Defaults'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-cocoa-500">Excluded Ingredients</span>
-                <span className="font-semibold text-cocoa-900">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(0)}
+                className="p-4 rounded-2xl text-left border bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50 transition-all cursor-pointer group"
+                title="Click to edit skin type"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-rose-600">Skin Type</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-lavender-700 bg-lavender-50 px-2 py-0.5 rounded-full border border-lavender-200">
+                    <Check className="w-3 h-3 text-lavender-600" />
+                    Confirmed
+                  </span>
+                </div>
+                <div className="font-semibold text-sm text-cocoa-900 mt-1.5 capitalize">
+                  {skinType ? SKIN_TYPES.find((st) => st.type === skinType)?.label || skinType : 'Balanced / Normal'}
+                </div>
+                <p className="text-xs text-cocoa-500 mt-1 leading-relaxed">
+                  {SKIN_TYPES.find((st) => st.type === skinType)?.desc || 'Baseline sebum and hydration profile.'}
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className="p-4 rounded-2xl text-left border bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50 transition-all cursor-pointer group"
+                title="Click to edit skincare goals"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-rose-600">Focus Areas</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-lavender-700 bg-lavender-50 px-2 py-0.5 rounded-full border border-lavender-200">
+                    {selectedConcerns.length} Selected
+                  </span>
+                </div>
+                <div className="font-semibold text-sm text-cocoa-900 mt-1.5">
+                  {selectedConcerns.length > 0
+                    ? selectedConcerns
+                        .map((c) => CONCERNS.find((co) => co.id === c)?.label || c.replace('-', ' '))
+                        .join(', ')
+                    : 'General Skin Maintenance'}
+                </div>
+                <p className="text-xs text-cocoa-500 mt-1 leading-relaxed">
+                  Targeted concerns calibrating active ingredients & barrier repair.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="p-4 rounded-2xl text-left border bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50 transition-all cursor-pointer group"
+                title="Click to edit reactivity & experience"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-rose-600">Reactivity & Experience</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-lavender-700 bg-lavender-50 px-2 py-0.5 rounded-full border border-lavender-200 capitalize">
+                    {experience === 'intermediate' ? 'Some experience' : experience}
+                  </span>
+                </div>
+                <div className="font-semibold text-sm text-cocoa-900 mt-1.5 capitalize">
+                  {skinReactivity === 'rarely'
+                    ? 'Rarely Reacts'
+                    : skinReactivity === 'sometimes'
+                    ? 'Sometimes Reacts'
+                    : 'Reacts Easily'}
+                </div>
+                <p className="text-xs text-cocoa-500 mt-1 leading-relaxed">
+                  {skinReactivity === 'easily'
+                    ? 'Ultra-gentle active pacing prioritizing barrier protection.'
+                    : skinReactivity === 'sometimes'
+                    ? 'Gentle pacing defaults applied to avoid unnecessary barrier stress.'
+                    : 'Standard introductory progression for tolerated OTC actives.'}
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(3)}
+                className="p-4 rounded-2xl text-left border bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50 transition-all cursor-pointer group"
+                title="Click to edit exclusions"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-rose-600">Excluded Ingredients</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-lavender-700 bg-lavender-50 px-2 py-0.5 rounded-full border border-lavender-200">
+                    {excludedIngredients.length > 0 ? `${excludedIngredients.length} Excluded` : 'None'}
+                  </span>
+                </div>
+                <div className="font-semibold text-sm text-cocoa-900 mt-1.5">
                   {excludedIngredients.length > 0
-                    ? excludedIngredients.join(', ')
+                    ? excludedIngredients
+                        .map((id) => commonAvoidableIngredients.find((i) => i.id === id)?.label || id)
+                        .join(', ')
                     : 'None specified'}
-                </span>
-              </div>
+                </div>
+                <p className="text-xs text-cocoa-500 mt-1 leading-relaxed">
+                  Strictly omitted from your daily and weekly routine formulations.
+                </p>
+              </button>
             </div>
 
-            {/* Pregnancy / Nursing Advisory Confirmation */}
-            <div className="p-3.5 rounded-2xl bg-lavender-50/70 border border-lavender-200">
-              <label className="flex items-start gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={pregnancyOrNursing}
-                  onChange={(e) => setPregnancyOrNursing(e.target.checked)}
-                  className="w-4 h-4 rounded text-lavender-600 focus:ring-lavender-400 border-cream-300 mt-0.5"
-                />
-                <span className="text-xs text-lavender-900 leading-relaxed">
-                  I am currently pregnant, planning a pregnancy, or breastfeeding (applies retinoid advisories across all views).
+            {/* Pregnancy / Nursing Advisory Confirmation Card */}
+            <button
+              type="button"
+              onClick={() => setPregnancyOrNursing(!pregnancyOrNursing)}
+              className={`w-full p-4 rounded-2xl text-left border transition-all cursor-pointer ${
+                pregnancyOrNursing
+                  ? 'bg-lavender-50/90 border-lavender-400 ring-1 ring-lavender-400 shadow-2xs'
+                  : 'bg-white/80 border-cream-200 hover:border-cream-300 hover:bg-cream-50'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-sm text-cocoa-900">
+                  Pregnancy & Nursing Safety Filter
                 </span>
-              </label>
-            </div>
+                {pregnancyOrNursing && <Check className="w-4 h-4 text-lavender-700 stroke-[3]" />}
+              </div>
+              <p className="text-xs text-cocoa-500 mt-1.5 leading-relaxed">
+                I am currently pregnant, planning a pregnancy, or breastfeeding (applies retinoid advisories across all views).
+              </p>
+            </button>
           </div>
         )}
 
@@ -511,8 +790,8 @@ export const Quiz: React.FC = () => {
                 <span className="text-xs font-semibold text-cocoa-800 uppercase tracking-wider">
                   Calibrated For You
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sage-700 bg-sage-50 px-2.5 py-0.5 rounded-full border border-sage-200">
-                  <ShieldCheck className="w-3.5 h-3.5 text-sage-600" />
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-lavender-700 bg-lavender-50 px-2.5 py-0.5 rounded-full border border-lavender-200">
+                  <ShieldCheck className="w-3.5 h-3.5 text-lavender-600" />
                   Verified Conflict-Free
                 </span>
               </div>
@@ -525,16 +804,20 @@ export const Quiz: React.FC = () => {
                 {selectedConcerns.map((c) => (
                   <span
                     key={c}
-                    className="px-3 py-1 rounded-full text-xs font-medium bg-sage-100/70 text-sage-900 border border-sage-200/70 capitalize"
+                    className="px-3 py-1 rounded-full text-xs font-medium bg-lavender-100/70 text-lavender-900 border border-lavender-200/70 capitalize"
                   >
                     🎯 {c.replace('-', ' ')}
                   </span>
                 ))}
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-lavender-100/70 text-lavender-900 border border-lavender-200/70">
-                  {sensitive ? '🌿 Sensitive Planning Mode' : '⚡ Standard Active Cadence'}
+                  {skinReactivity === 'easily'
+                    ? '🌿 Ultra-Gentle Barrier Pace'
+                    : skinReactivity === 'sometimes'
+                    ? '🌿 Sensitive Planning Mode'
+                    : '⚡ Standard Active Cadence'}
                 </span>
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-cream-200/70 text-cocoa-800 border border-cream-300/70 capitalize">
-                  {experience} Experience
+                  {experience === 'intermediate' ? 'Some' : experience} Experience
                 </span>
                 {pregnancyOrNursing && (
                   <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-100/80 text-amber-900 border border-amber-200/80">
@@ -544,31 +827,31 @@ export const Quiz: React.FC = () => {
               </div>
 
               {/* Ritual Features */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-left">
-                <div className="p-3 rounded-2xl bg-white/70 border border-cream-200 text-xs">
-                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-0.5">
-                    <Sun className="w-3.5 h-3.5 text-amber-500" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-left">
+                <div className="p-4 rounded-2xl bg-white/80 border border-cream-200 hover:border-cream-300 hover:bg-cream-50 text-xs transition-all">
+                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-1">
+                    <Sun className="w-4 h-4 text-amber-500" />
                     <span>AM Defense</span>
                   </div>
-                  <p className="text-[11px] text-cocoa-500 leading-snug">
+                  <p className="text-xs text-cocoa-500 leading-relaxed">
                     Hydration, antioxidant protection & UV barrier
                   </p>
                 </div>
-                <div className="p-3 rounded-2xl bg-white/70 border border-cream-200 text-xs">
-                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-0.5">
-                    <Moon className="w-3.5 h-3.5 text-lavender-600" />
+                <div className="p-4 rounded-2xl bg-white/80 border border-cream-200 hover:border-cream-300 hover:bg-cream-50 text-xs transition-all">
+                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-1">
+                    <Moon className="w-4 h-4 text-lavender-600" />
                     <span>PM Recovery</span>
                   </div>
-                  <p className="text-[11px] text-cocoa-500 leading-snug">
+                  <p className="text-xs text-cocoa-500 leading-relaxed">
                     Targeted active treatment & lipid barrier renewal
                   </p>
                 </div>
-                <div className="p-3 rounded-2xl bg-white/70 border border-cream-200 text-xs">
-                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-0.5">
-                    <Calendar className="w-3.5 h-3.5 text-rose-500" />
+                <div className="p-4 rounded-2xl bg-white/80 border border-cream-200 hover:border-cream-300 hover:bg-cream-50 text-xs transition-all">
+                  <div className="flex items-center gap-1.5 font-semibold text-cocoa-900 mb-1">
+                    <Calendar className="w-4 h-4 text-rose-500" />
                     <span>Weekly Cadence</span>
                   </div>
-                  <p className="text-[11px] text-cocoa-500 leading-snug">
+                  <p className="text-xs text-cocoa-500 leading-relaxed">
                     Rest nights & alternating active cycling
                   </p>
                 </div>
@@ -576,7 +859,7 @@ export const Quiz: React.FC = () => {
             </div>
 
             {/* Google Sign-In Card */}
-            <div className="p-5 rounded-3xl bg-rose-50/50 border border-rose-200/80 space-y-3.5 text-center">
+            <div className="p-6 rounded-3xl bg-white/80 border border-cream-200/90 shadow-2xs space-y-4 text-center">
               {user ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-center gap-2 text-xs text-cocoa-700">
@@ -690,6 +973,92 @@ export const Quiz: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Skin Type Identification Modal */}
+      <Modal
+        isOpen={isSkinGuideOpen}
+        onClose={() => setIsSkinGuideOpen(false)}
+        title="Identifying Your Skin Type"
+        maxWidth="xl"
+      >
+        <div className="space-y-3 text-cocoa-800 text-xs sm:text-[13px] leading-relaxed">
+          {/* Bare-Face Test */}
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/90 space-y-1.5">
+            <h4 className="font-semibold text-sm text-cocoa-900 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-lavender-700 shrink-0" />
+              The Bare-Face Observation Test (30–60 Minutes)
+            </h4>
+            <p className="text-cocoa-600 text-xs">
+              Wash your face with a gentle, non-stripping cleanser and gently pat dry. Leave your skin completely bare without any serums, toners, or moisturisers for 30–60 minutes, then check how it feels:
+            </p>
+            <ul className="space-y-1 pt-0.5 text-xs text-cocoa-700">
+              <li className="flex items-start gap-1.5">
+                <span className="font-semibold text-cocoa-900 shrink-0">Balanced / Normal:</span>
+                <span>Feels comfortable, supple, and smooth with no taut tightness or greasy shine.</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="font-semibold text-cocoa-900 shrink-0">Dry:</span>
+                <span>Feels tight, parched, or rough, especially when smiling; may show flakiness.</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="font-semibold text-cocoa-900 shrink-0">Oily:</span>
+                <span>Looks visibly shiny and feels slick with excess sebum all across the face.</span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="font-semibold text-cocoa-900 shrink-0">Combination:</span>
+                <span>Produces shine along the T-zone (forehead, nose, chin), while cheeks remain normal or dry.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Skin Type vs Temporary Skin Condition */}
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-lavender-50/80 border border-lavender-200/90 space-y-1.5">
+            <h4 className="font-semibold text-sm text-cocoa-900 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-lavender-700 shrink-0" />
+              Skin Type vs. Temporary Skin Conditions
+            </h4>
+            <p className="text-cocoa-700 text-xs">
+              It is easy to confuse your baseline <strong>skin type</strong> with temporary <strong>skin conditions</strong>:
+            </p>
+            <ul className="space-y-1.5 text-xs text-cocoa-700">
+              <li className="flex items-start gap-1.5">
+                <span className="font-bold text-lavender-800 shrink-0">•</span>
+                <span>
+                  <strong>Skin Type:</strong> Your genetic baseline for natural sebum (oil) production.
+                </span>
+              </li>
+              <li className="flex items-start gap-1.5">
+                <span className="font-bold text-lavender-800 shrink-0">•</span>
+                <span>
+                  <strong>Dehydration is a condition, not a type:</strong> Dehydrated skin lacks <em>water</em>, while dry skin lacks <em>oil</em>. For instance, oily skin can still experience dehydration if the skin barrier is stressed, feeling tight or flaky while simultaneously producing excess sebum to protect itself.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Not a Diagnosis Notice */}
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex items-start gap-2.5 text-xs text-amber-950">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold block mb-0.5">Skin type is not a medical diagnosis</span>
+              <p className="text-amber-800 leading-relaxed text-xs">
+                Your skin is dynamic, not permanent. It naturally adapts and changes over time with shifting seasons, weather, humidity, hormonal cycles, age, and lifestyle. You can always update your skin profile in Settings as your skin evolves.
+              </p>
+            </div>
+          </div>
+
+          {/* Back to Quiz Action */}
+          <div className="pt-1 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setIsSkinGuideOpen(false)}
+              className="px-5 py-2 rounded-full text-xs font-semibold bg-cocoa-900 text-white hover:bg-cocoa-800 transition-colors shadow-2xs"
+            >
+              Back to Quiz
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

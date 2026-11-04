@@ -14,7 +14,7 @@ import { useStore } from '../store/useStore';
 import { useAuth } from '../hooks/useAuth';
 import { Modal } from '../components/ui/Modal';
 import { loadReferenceData } from '../lib/loadData';
-import { SkinType } from '../types';
+import { SkinType, SkinReactivity } from '../types';
 
 export const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +28,9 @@ export const Settings: React.FC = () => {
   const { user, loading, error, loginWithGoogle, logout } = useAuth();
 
   const [skinType, setSkinType] = useState<SkinType>(profile.skinType || 'combination');
-  const [sensitive, setSensitive] = useState<boolean>(profile.sensitive);
+  const [skinReactivity, setSkinReactivity] = useState<SkinReactivity>(
+    profile.skinReactivity || (profile.sensitive ? 'sometimes' : 'rarely')
+  );
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [importStatus, setImportStatus] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -38,7 +40,8 @@ export const Settings: React.FC = () => {
     e.preventDefault();
     updateProfile({
       skinType,
-      sensitive,
+      sensitive: skinReactivity !== 'rarely',
+      skinReactivity,
     });
   };
 
@@ -143,18 +146,19 @@ export const Settings: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center pt-5">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={sensitive}
-                  onChange={(e) => setSensitive(e.target.checked)}
-                  className="w-4 h-4 rounded text-rose-500 focus:ring-rose-400 border-cream-300"
-                />
-                <span className="text-xs font-medium text-cocoa-800">
-                  Sensitive mode (applies gentle lower active frequencies)
-                </span>
+            <div>
+              <label className="block text-xs font-semibold text-cocoa-700 mb-1">
+                Skin Reactivity
               </label>
+              <select
+                value={skinReactivity}
+                onChange={(e) => setSkinReactivity(e.target.value as SkinReactivity)}
+                className="w-full px-4 py-2.5 rounded-2xl border border-cream-200 bg-white text-xs sm:text-sm text-cocoa-900 focus:outline-none focus:ring-2 focus:ring-rose-400"
+              >
+                <option value="rarely">Rarely reacts (Standard active cadence)</option>
+                <option value="sometimes">Sometimes reacts (Gentle active defaults)</option>
+                <option value="easily">Reacts easily (Ultra-gentle barrier pace)</option>
+              </select>
             </div>
           </div>
 

@@ -86,7 +86,7 @@ export default {
         'soft': '0 4px 20px -2px rgba(61, 38, 48, 0.05), 0 2px 6px -1px rgba(61, 38, 48, 0.03)',
         'soft-lg': '0 14px 34px -4px rgba(61, 38, 48, 0.08), 0 4px 12px -2px rgba(61, 38, 48, 0.04)',
         'glass': '0 8px 32px 0 rgba(61, 38, 48, 0.06)',
-        'rose-glow': '0 4px 20px -2px rgba(216, 143, 166, 0.35)',
+        'rose-glow': '0 4px 20px -2px rgba(167, 152, 190, 0.35)',
         'sage-glow': '0 4px 20px -2px rgba(145, 157, 133, 0.25)',
       }
     },

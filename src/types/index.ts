@@ -161,10 +161,13 @@ export type SkinConcern =
   | 'dullness'
   | 'dryness';
 
+export type SkinReactivity = 'rarely' | 'sometimes' | 'easily';
+
 export interface Profile {
   skinType?: SkinType;
   concerns: SkinConcern[];
   sensitive: boolean;
+  skinReactivity?: SkinReactivity;
   excludedIngredients: string[];
   experienceLevel?: 'beginner' | 'intermediate' | 'experienced';
   pregnancyOrNursing?: boolean;

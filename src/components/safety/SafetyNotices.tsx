@@ -107,7 +107,7 @@ export const SunscreenGuidanceNotice: React.FC = () => (
  * Sensitive Skin Toggle Disclaimer
  */
 export const SensitiveToggleDisclaimer: React.FC = () => (
-  <span className="text-[11px] text-cocoa-400 block mt-1">
+  <span className="text-xs text-cocoa-400 block mt-1.5">
     This only lowers suggested frequencies. It isn't a diagnosis.
   </span>
 );
@@ -116,7 +116,7 @@ export const SensitiveToggleDisclaimer: React.FC = () => (
  * Excluded Ingredients Disclaimer
  */
 export const ExcludedIngredientsDisclaimer: React.FC = () => (
-  <p className="text-xs text-cocoa-500 mt-1.5">
+  <p className="text-xs sm:text-sm text-cocoa-500 mt-1 leading-relaxed">
     Tell us ingredients you avoid and we'll keep products containing them out of your plan. We can't diagnose allergies.
   </p>
 );
